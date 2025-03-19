@@ -1,0 +1,132 @@
+/* General Popup Styles */
+.popup {
+    position: fixed; /* Ensures the popup stays in the center and on top */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Centers the popup on the screen */
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s, opacity 0.3s ease-in-out;
+    z-index: 1000; /* Ensures the popup is on top of everything */
+}
+
+.popup--visible {
+    visibility: visible;
+    opacity: 1;
+}
+
+.popup__content {
+    position: relative;
+    z-index: 1001; /* Ensures the content inside the popup is on top */
+    padding: 20px;
+    width: 350px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+/* Adjust z-index of other form elements to ensure they are below the popup */
+.right-box {
+    z-index: 1; /* Keep form content below the popup */
+}
+
+
+.popup__background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+.popup__content {
+    position: relative;
+    z-index: 2;
+    padding: 20px;
+    width: 350px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+.popup__content__title {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.popup__content p {
+    margin: 15px 0;
+}
+
+/* Success Popup */
+.popup--icon.-success {
+    border: 3px solid #4CAF50;
+}
+
+.popup--icon.-success .popup__content__title {
+    color: #4CAF50;
+}
+
+.button--success {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.button--success:hover {
+    background-color: #45a049;
+}
+
+/* Error Popup */
+.popup--icon.-error {
+    border: 3px solid #F44336;
+}
+
+.popup--icon.-error .popup__content__title {
+    color: #F44336;
+}
+
+.button--error {
+    background-color: #F44336;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.button--error:hover {
+    background-color: #e53935;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .popup__content {
+        width: 90%;
+    }
+}
+
+/* Button General Style */
+button {
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.3s ease-in-out;
+    display: inline-block;
+    padding: 10px 20px;
+}
+
+button:focus {
+    outline: none;
+}
