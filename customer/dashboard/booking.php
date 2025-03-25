@@ -1,17 +1,16 @@
 <?php
 session_start();
-require_once '../../connection/conn.php'; // Database connection
+require_once '../../connection/conn.php';
 
-// Ensure the user is logged in
-// if (!isset($_SESSION['user_id'])) {
-//     $_SESSION['error_message'] = "Please log in to book a service.";
-//     header("Location: ../auth/login.php");
-//     exit;
-// }
+// Ensure only logged-in customers can access
+if (!isset($_SESSION['customer_id']) || empty($_SESSION['customer_id'])) {
+    $_SESSION['error_message'] = "Unauthorized access. Please log in.";
+    header("Location: ../../auth/login.php");
+    exit;
+}
 
-// $customer_id = $_SESSION['user_id']; // Get logged-in user ID
+$customer_id = intval($_SESSION['customer_id']); // Secure customer ID
 
-// Handle booking submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $service_id = (int)$_POST['service_id'];
     $booking_date = $_POST['booking_date'];
@@ -19,28 +18,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $status = "Pending";
     $datetime = $booking_date . ' ' . $booking_time;
 
-    // Insert booking into database
-    $stmt = $conn->prepare("INSERT INTO booking (CustomerID, ServiceID, Date, Status) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("iiss", $customer_id, $service_id, $datetime, $status);
+    // Check if customer already has a booking
+    $check_query = "SELECT ServiceID FROM customer WHERE CustomerID = ? AND ServiceID IS NOT NULL";
+    $stmt_check = $conn->prepare($check_query);
+    $stmt_check->bind_param("i", $customer_id);
+    $stmt_check->execute();
+    $stmt_check->store_result();
 
-    if ($stmt->execute()) {
-        $_SESSION['success_message'] = "Booking successfully created!";
+    if ($stmt_check->num_rows > 0) {
+        $_SESSION['error_message'] = "You already have an active booking!";
     } else {
-        $_SESSION['error_message'] = "Error booking your service. Please try again.";
+        // Update customer table with new booking details
+        $stmt = $conn->prepare("UPDATE customer SET ServiceID = ?, BookingDate = ?, Status = ? WHERE CustomerID = ?");
+        $stmt->bind_param("issi", $service_id, $datetime, $status, $customer_id);
+
+        if ($stmt->execute()) {
+            $_SESSION['success_message'] = "Booking successfully created!";
+        } else {
+            $_SESSION['error_message'] = "Error booking your service. Please try again.";
+        }
+        $stmt->close();
     }
-    $stmt->close();
+    $stmt_check->close();
 }
 
 // Fetch available services
 $services = $conn->query("SELECT * FROM service");
 ?>
 
-<?php include './components/header.php' ?>
+<?php include './components/header.php'; ?>
 <body>
-<?php include './components/sidebar.php' ?>
+<?php include './components/sidebar.php'; ?>
 <div class="content">
-    <?php include './components/navbar.php' ?>
-<div class="booking-container">
+    <?php include './components/navbar.php'; ?>
     <h2>Book Your Service</h2>
 
     <?php if (isset($_SESSION['success_message'])): ?>
@@ -49,23 +59,24 @@ $services = $conn->query("SELECT * FROM service");
         <div class="alert error"><?php echo $_SESSION['error_message']; unset($_SESSION['error_message']); ?></div>
     <?php endif; ?>
 
-    <form action="booking.php" method="POST">
-        <label for="service_id">Select Service:</label>
-        <select id="service_id" name="service_id" required>
-            <?php while ($service = $services->fetch_assoc()): ?>
-                <option value="<?php echo $service['ServiceID']; ?>"><?php echo $service['ServiceName']; ?></option>
-            <?php endwhile; ?>
-        </select>
+    <div class="booking-container">
+        <form action="booking.php" method="POST">
+            <label for="service_id">Select Service:</label>
+            <select id="service_id" name="service_id" required>
+                <?php while ($service = $services->fetch_assoc()): ?>
+                    <option value="<?php echo $service['ServiceID']; ?>"><?php echo $service['ServiceName']; ?></option>
+                <?php endwhile; ?>
+            </select>
 
-        <label for="booking_date">Booking Date:</label>
-        <input type="date" id="booking_date" name="booking_date" required>
+            <label for="booking_date">Booking Date:</label>
+            <input type="date" id="booking_date" name="booking_date" required>
 
-        <label for="booking_time">Booking Time:</label>
-        <input type="time" id="booking_time" name="booking_time" required>
+            <label for="booking_time">Booking Time:</label>
+            <input type="time" id="booking_time" name="booking_time" required>
 
-        <button type="submit">Submit Booking</button>
-    </form>
-</div>
+            <button type="submit">Submit Booking</button>
+        </form>
+    </div>
 </div>
 </body>
 <script src="./js/dash.js"></script>

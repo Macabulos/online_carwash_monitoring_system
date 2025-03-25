@@ -1,5 +1,5 @@
 <?php
-session_start();
+// session_start();
 require_once '../connection/conn.php'; // Database connection
 
 // Check if admin is already logged in

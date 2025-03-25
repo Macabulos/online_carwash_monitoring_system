@@ -16,8 +16,8 @@
 					</li>
 
 					<li class="sidebar-item">
-						<a class="sidebar-link" href="track_status.php">
-              <i class="align-middle" data-feather="check-circle"></i> <span class="align-middle">Status Check</span>
+						<a class="sidebar-link" href="manage_services.php">
+              <i class="align-middle" data-feather="check-circle"></i> <span class="align-middle">Manage Service</span>
             </a>
 					</li>
 

@@ -1,22 +1,28 @@
 <?php
-include '../connection/conn.php'; // Include database connection
+session_start();
+require_once '../connection/conn.php'; // Include database connection
 
-// Ensure admin is logged in
+// Ensure the user is logged in as an admin
+if (!isset($_SESSION['admin_id']) || empty($_SESSION['admin_id'])) {
+    $_SESSION['error_message'] = "Unauthorized access. Please log in.";
+    header("Location: ../auth/login.php");
+    exit;
+}
 
-// Fetch total bookings
-$totalBookingsQuery = "SELECT COUNT(*) AS total FROM booking";
-$totalBookingsResult = mysqli_query($conn, $totalBookingsQuery);
-$totalBookings = mysqli_fetch_assoc($totalBookingsResult)['total'];
+// Fetch total customers (since booking table was removed)
+$totalCustomersQuery = "SELECT COUNT(*) AS total FROM customer WHERE ServiceID IS NOT NULL";
+$totalCustomersResult = mysqli_query($conn, $totalCustomersQuery);
+$totalCustomers = mysqli_fetch_assoc($totalCustomersResult)['total'] ?? 0;
 
 // Fetch total feedbacks
 $totalFeedbackQuery = "SELECT COUNT(*) AS total FROM feedback";
 $totalFeedbackResult = mysqli_query($conn, $totalFeedbackQuery);
-$totalFeedback = mysqli_fetch_assoc($totalFeedbackResult)['total'];
+$totalFeedback = mysqli_fetch_assoc($totalFeedbackResult)['total'] ?? 0;
 
 // Fetch total reports
 $totalReportsQuery = "SELECT COUNT(*) AS total FROM report";
 $totalReportsResult = mysqli_query($conn, $totalReportsQuery);
-$totalReports = mysqli_fetch_assoc($totalReportsResult)['total'];
+$totalReports = mysqli_fetch_assoc($totalReportsResult)['total'] ?? 0;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -36,8 +42,8 @@ $totalReports = mysqli_fetch_assoc($totalReportsResult)['total'];
                         <div class="col-md-4">
                             <div class="card">
                                 <div class="card-body text-center">
-                                    <h4>Total Bookings</h4>
-                                    <p class="display-4"><?php echo $totalBookings; ?></p>
+                                    <h4>Total Customers with Bookings</h4>
+                                    <p class="display-4"><?php echo $totalCustomers; ?></p>
                                 </div>
                             </div>
                         </div>

@@ -4,7 +4,7 @@ require_once '../../connection/conn.php';
 
 if (!isset($_SESSION['customer_id'])) {
     $_SESSION['error_message'] = "Please log in first.";
-    header("Location: ../auth/login.php");
+    header("Location: ../../connection/auth.php");
     exit;
 }
 
