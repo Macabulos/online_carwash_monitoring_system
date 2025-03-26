@@ -1,5 +1,14 @@
 <?php
-include '../connection/conn.php';
+
+session_start();
+require_once '../connection/conn.php'; // Database connection
+
+// Ensure the user is logged in as an admin
+if (!isset($_SESSION['admin_id']) || empty($_SESSION['admin_id'])) {
+    $_SESSION['error_message'] = "Unauthorized access. Please log in.";
+    header("Location: ../auth/login.php");
+    exit;
+}
 include 'includes/head.php';
 ?>
 

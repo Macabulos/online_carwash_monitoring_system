@@ -11,10 +11,11 @@ if (!isset($_SESSION['customer_id']) || empty($_SESSION['customer_id'])) {
 
 $customer_id = intval($_SESSION['customer_id']); // Secure customer ID
 
-// Fetch booking details for the logged-in customer
-$query = "SELECT c.ServiceID, s.ServiceName, c.BookingDate, c.Status
+// Fetch booking details with service name and status name
+$query = "SELECT c.ServiceID, s.ServiceName, c.BookingDate, st.StatusName
           FROM customer c
           LEFT JOIN service s ON c.ServiceID = s.ServiceID
+          LEFT JOIN status st ON c.StatusID = st.StatusID
           WHERE c.CustomerID = ? AND c.ServiceID IS NOT NULL
           ORDER BY c.BookingDate DESC";
 
@@ -47,8 +48,8 @@ $stmt->close();
                         <?php echo $booking['BookingDate'] ? date('F j, Y, g:i A', strtotime($booking['BookingDate'])) : 'Not Set'; ?>
                     </p>
                     <p><strong>Status:</strong> 
-                        <span class="status <?php echo strtolower($booking['Status'] ?? 'pending'); ?>">
-                            <?php echo htmlspecialchars($booking['Status'] ?? 'Pending'); ?>
+                        <span class="status <?php echo strtolower($booking['StatusName'] ?? 'pending'); ?>">
+                            <?php echo htmlspecialchars($booking['StatusName'] ?? 'Pending'); ?>
                         </span>
                     </p>
                 </div>

@@ -15,22 +15,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $service_id = (int)$_POST['service_id'];
     $booking_date = $_POST['booking_date'];
     $booking_time = $_POST['booking_time'];
-    $status = "Pending";
+    $status_id = 1; // Default to "Pending" (StatusID = 1)
     $datetime = $booking_date . ' ' . $booking_time;
 
-    // Check if customer already has a booking
-    $check_query = "SELECT ServiceID FROM customer WHERE CustomerID = ? AND ServiceID IS NOT NULL";
+    // 🔹 Check if customer already has a booking (ANY STATUS)
+    $check_query = "SELECT CustomerID FROM customer WHERE CustomerID = ? AND BookingDate IS NOT NULL";
     $stmt_check = $conn->prepare($check_query);
     $stmt_check->bind_param("i", $customer_id);
     $stmt_check->execute();
     $stmt_check->store_result();
+    $existing_booking = $stmt_check->num_rows > 0;
+    $stmt_check->close();
 
-    if ($stmt_check->num_rows > 0) {
+    if ($existing_booking) {
         $_SESSION['error_message'] = "You already have an active booking!";
     } else {
-        // Update customer table with new booking details
-        $stmt = $conn->prepare("UPDATE customer SET ServiceID = ?, BookingDate = ?, Status = ? WHERE CustomerID = ?");
-        $stmt->bind_param("issi", $service_id, $datetime, $status, $customer_id);
+        // 🔹 INSERT a new booking instead of updating an existing one
+        $stmt = $conn->prepare("INSERT INTO customer (CustomerID, ServiceID, BookingDate, StatusID) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("iisi", $customer_id, $service_id, $datetime, $status_id);
 
         if ($stmt->execute()) {
             $_SESSION['success_message'] = "Booking successfully created!";
@@ -39,7 +41,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         $stmt->close();
     }
-    $stmt_check->close();
 }
 
 // Fetch available services
