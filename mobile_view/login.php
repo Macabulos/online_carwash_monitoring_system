@@ -1,6 +1,5 @@
 <?php
 session_start();
-
 require '../connection/conn.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
@@ -10,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
     // Validate the inputs
     if (empty($email) || empty($password)) {
         $_SESSION['error'] = "Please fill in both fields!";
-        header("Location: login.php"); // Redirect back to login page with error message
+        header("Location: login.php");
         exit();
     }
 
@@ -26,49 +25,51 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
 
         // Verify the password
         if (password_verify($password, $user['Password'])) {
-            // Regenerate session ID to prevent session fixation
-            session_regenerate_id(true);
+            session_regenerate_id(true); // Prevent session fixation
 
-            // Set session variables for the logged-in user
+            // Set session variables
             $_SESSION['CustomerID'] = $user['CustomerID']; 
             $_SESSION['Username'] = $user['Username'];
+            $_SESSION['success'] = "Successfully logged in! Redirecting...";
 
-            // Redirect to dashboard
-            header("Location: ./components/dashboard.php");
-            exit();
+            // Delay redirection for 5 seconds
+            header("Refresh: 5; URL=./components/dashboard.php");
         } else {
             $_SESSION['error'] = "Invalid password!";
-            header("Location: login.php"); // Redirect back to login page with error message
+            header("Location: login.php");
             exit();
         }
     } else {
         $_SESSION['error'] = "User not found!";
-        header("Location: login.php"); // Redirect back to login page with error message
+        header("Location: login.php");
         exit();
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="./css/style.css">
-    <title>Login</title>
 </head>
 <body>
 <div class="form-container">
     <h2>Login</h2>
-    <!-- Display error message if there is one -->
+
+    <!-- Alert messages -->
     <?php
     if (isset($_SESSION['error'])) {
         echo '<div class="alert alert-danger" role="alert">' . $_SESSION['error'] . '</div>';
-        unset($_SESSION['error']);  // Clear the error message after displaying it
+        unset($_SESSION['error']);
     }
     if (isset($_SESSION['success'])) {
         echo '<div class="alert alert-success" role="alert">' . $_SESSION['success'] . '</div>';
+        echo '<p id="countdown" class="text-muted"></p>';
         unset($_SESSION['success']);
     }
     ?>
@@ -101,11 +102,21 @@ document.getElementById("loginForm").addEventListener("submit", function(event) 
     const password = document.getElementById('password').value;
 
     if (!email || !password) {
-        event.preventDefault();  // Prevent form submission
+        event.preventDefault();
         alert("Please fill in both fields!");
     }
 });
-</script>
 
+// Countdown for redirection
+// let seconds = 2;
+// const countdownEl = document.getElementById('countdown');
+// if (countdownEl) {
+//     const timer = setInterval(() => {
+//         countdownEl.textContent = `Redirecting in ${seconds} second${seconds !== 1 ? 's' : ''}...`;
+//         seconds--;
+//         if (seconds < 0) clearInterval(timer);
+//     }, 1000);
+// }
+</script>
 </body>
 </html>

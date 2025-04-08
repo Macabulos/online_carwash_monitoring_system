@@ -22,14 +22,14 @@
 					</li>
 
 					<li class="sidebar-header">
-						Car wash
+						Status
 					</li>
-<!-- 
+
 					<li class="sidebar-item">
-						<a class="sidebar-link" href="vehicleForm.php">
-              <i class="align-middle fa fa-plus" ></i> <span class="align-middle">Add Customer Vehicle</span>
+						<a class="sidebar-link" href="manage_user.php">
+              <i class="align-middle fa fa-plus" ></i> <span class="align-middle">Manage User</span>
             </a>
-					</li> -->
+					</li>
 
 
 					<li class="sidebar-item">
