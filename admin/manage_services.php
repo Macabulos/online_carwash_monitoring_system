@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../connection/conn.php'; // Include database connection
+
 // Ensure the user is logged in as an admin
 if (!isset($_SESSION['admin_id']) || empty($_SESSION['admin_id'])) {
     $_SESSION['error_message'] = "Unauthorized access. Please log in.";
@@ -16,10 +17,10 @@ $result = mysqli_query($conn, $sql);
 if (isset($_POST['delete_service'])) {
     $service_id = $_POST['service_id'];
     $delete_query = "DELETE FROM service WHERE ServiceID = ?";
-    
+
     $stmt = $conn->prepare($delete_query);
     $stmt->bind_param("i", $service_id);
-    
+
     if ($stmt->execute()) {
         $_SESSION['success_message'] = "Service deleted successfully!";
     } else {
@@ -53,8 +54,7 @@ if (isset($_POST['delete_service'])) {
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addServiceModal">
-
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addServiceModal">
                                     <i class="fa fa-plus"></i> Add Service
                                 </button>
                             </div>
@@ -63,6 +63,7 @@ if (isset($_POST['delete_service'])) {
                                     <thead>
                                         <tr>
                                             <th>Service ID</th>
+                                            <th>Image</th>
                                             <th>Service Name</th>
                                             <th>Description</th>
                                             <th>Actions</th>
@@ -72,6 +73,7 @@ if (isset($_POST['delete_service'])) {
                                     <?php while ($row = mysqli_fetch_assoc($result)): ?>
                                         <tr>
                                             <td><?php echo $row['ServiceID']; ?></td>
+                                            <td><img src="../uploads/services/<?php echo $row['ImagePath']; ?>" width="80"></td>
                                             <td><?php echo $row['ServiceName']; ?></td>
                                             <td><?php echo $row['Description']; ?></td>
                                             <td>
@@ -101,52 +103,52 @@ if (isset($_POST['delete_service'])) {
 </div>
 
 <!-- Add Service Modal -->
-<div class="modal fade" id="addServiceModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Add New Service</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form action="save_service.php" method="POST">
-                    <div class="form-group">
-                        <label>Service Name</label>
-                        <input type="text" name="service_name" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Description</label>
-                        <textarea name="description" class="form-control" rows="3" required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-success">Save Service</button>
-                </form>
-            </div>
+<div class="modal fade" id="addServiceModal" tabindex="-1" aria-labelledby="addServiceModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form action="save_service.php" method="POST" enctype="multipart/form-data"> <!-- FIXED HERE -->
+        <div class="modal-header">
+          <h5 class="modal-title" id="addServiceModalLabel">Add New Service</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
+        <div class="modal-body">
+          <div class="mb-3">
+              <label for="serviceImage" class="form-label">Image</label>
+              <input type="file" class="form-control" name="service_image" id="serviceImage" accept="image/*">
+          </div>
+          <div class="mb-3">
+              <label for="serviceName" class="form-label">Service Name</label>
+              <input type="text" class="form-control" name="service_name" id="serviceName" required>
+          </div>
+          <div class="mb-3">
+              <label for="serviceDesc" class="form-label">Description</label>
+              <textarea class="form-control" name="description" id="serviceDesc" rows="3" required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Save Service</button>
+        </div>
+      </form>
     </div>
+  </div>
 </div>
 
 <!-- Edit Service Modal -->
-<div class="modal fade" id="editServiceModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Edit Service</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body" id="editServiceData">
-                <!-- AJAX content will be loaded here -->
-            </div>
-        </div>
+<div class="modal fade" id="editServiceModal" tabindex="-1" aria-labelledby="editServiceModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editServiceModalLabel">Edit Service</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="editServiceData">
+        <!-- AJAX content will be loaded here -->
+      </div>
     </div>
+  </div>
 </div>
 
 <?php include 'includes/scripts.php'; ?>
-
-
 <script>
 function editService(serviceID) {
     fetch('edit_service.php?id=' + serviceID)
@@ -154,17 +156,7 @@ function editService(serviceID) {
         .then(data => document.getElementById("editServiceData").innerHTML = data);
 }
 </script>
-<!-- Bootstrap and jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    document.querySelector('[data-target="#addServiceModal"]').addEventListener("click", function () {
-        console.log("Add Service Button Clicked!"); // Debugging
-    });
-});
-</script>
-
 </body>
 </html>

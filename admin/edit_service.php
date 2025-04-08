@@ -10,8 +10,10 @@ if (isset($_GET['id'])) {
     $result = $stmt->get_result();
     $service = $result->fetch_assoc();
 ?>
-    <form action="update_service.php" method="POST">
+    <form action="update_service.php" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="service_id" value="<?php echo $service['ServiceID']; ?>">
+        <img src="../uploads/services/<?php echo $service['ImagePath']; ?>" width="150" class="mb-2">
+<input type="file" name="service_image" class="form-control" accept="image/*">
         <div class="form-group">
             <label>Service Name</label>
             <input type="text" name="service_name" class="form-control" value="<?php echo $service['ServiceName']; ?>" required>

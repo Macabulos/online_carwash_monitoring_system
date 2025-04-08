@@ -1,8 +1,9 @@
+<!-- NAVBAR -->
 <nav class="navbar navbar-expand navbar-light navbar-bg">
    <a class="sidebar-toggle d-flex">
       <i class="hamburger align-self-center"></i>
    </a>
-   <!-- <form method="POST" action="" class="form-inline d-none d-sm-inline-block">
+   <form method="POST" action="" class="form-inline d-none d-sm-inline-block">
       <div class="input-group input-group-navbar">
          <input type="text" class="form-control" placeholder="Search Status…" aria-label="Search Status" name="track">
          <div class="input-group-append">
@@ -11,21 +12,18 @@
             </button>
          </div>
       </div>
-   </form> -->
+   </form>
    <div class="navbar-collapse collapse">
       <ul class="navbar-nav navbar-align">
          <li class="nav-item dropdown">
-            <a class="nav-icon dropdown-toggle d-inline-block d-sm-none" href="#" data-toggle="dropdown">
+            <a class="nav-icon dropdown-toggle d-inline-block d-sm-none" href="#" data-bs-toggle="dropdown">
                <i class="align-middle" data-feather="settings"></i>
             </a>
-            <a class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#" data-toggle="dropdown">
+            <a class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#" data-bs-toggle="dropdown">
                <span class="text-dark">Hi, <?php echo $_SESSION["email"]; ?></span>
             </a>
-            <div class="dropdown-menu dropdown-menu-right">
-               <!-- <a class="dropdown-item" href="pages-profile.html">
-                  <i class="align-middle mr-1" data-feather="user"></i> Update Profile
-               </a> -->
-               <div class="dropdown-menu dropdown-menu-end"></div>
+
+            <div class="dropdown-menu dropdown-menu-end">
                <a class="dropdown-item" href="#" id="logout-btn">
                   <i class='bx bx-log-out'></i> Log out
                </a>
@@ -34,8 +32,20 @@
       </ul>
    </div>
 </nav>
+
+<!-- LOGOUT MODAL -->
+<div id="logoutModal" class="logout-modal">
+   <div class="logout-modal-content">
+      <span class="close" id="close-logout-modal">&times;</span>
+      <h2>Logout Confirmation</h2>
+      <p>Are you sure you want to log out?</p>
+      <button class="confirm-btn" id="confirm-logout">Yes</button>
+      <button class="cancel-btn" id="cancel-logout">No</button>
+   </div>
+</div>
+
+<!-- MODAL CSS -->
 <style>
-/* Updated Modal Styles */
 .logout-modal {
     display: none;
     position: fixed;
@@ -45,8 +55,8 @@
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgba(0, 0, 0, 0.6); /* Darker background */
-    transition: opacity 0.3s ease-in-out; /* Smooth fade in/out */
+    background-color: rgba(0, 0, 0, 0.6);
+    transition: opacity 0.3s ease-in-out;
 }
 
 .logout-modal-content {
@@ -58,18 +68,17 @@
     max-width: 450px;
     text-align: center;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
     transition: transform 0.3s ease-in-out;
 }
 
 .logout-modal-content h2 {
     margin-top: 0;
-    font-family: 'Arial', sans-serif;
     font-size: 24px;
     color: #333;
 }
 
 .logout-modal-content p {
-    font-family: 'Arial', sans-serif;
     font-size: 16px;
     color: #666;
     margin-bottom: 30px;
@@ -91,10 +100,8 @@
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-family: 'Arial', sans-serif;
     font-size: 16px;
     margin-right: 10px;
-    transition: background-color 0.2s ease-in-out;
 }
 
 .logout-modal-content .cancel-btn {
@@ -104,9 +111,7 @@
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-family: 'Arial', sans-serif;
     font-size: 16px;
-    transition: background-color 0.2s ease-in-out;
 }
 
 .logout-modal-content .confirm-btn:hover {
@@ -116,77 +121,67 @@
 .logout-modal-content .cancel-btn:hover {
     background-color: #95a5a6;
 }
-
 </style>
 
-<!-- Modal Structure -->
-<div id="logoutModal" class="logout-modal">
-   <div class="logout-modal-content">
-      <span class="close" id="close-logout-modal">&times;</span>
-      <h2>Logout Confirmation</h2>
-      <p>Are you sure you want to log out?</p>
-      <button class="confirm-btn" id="confirm-logout">Yes</button>
-      <button class="cancel-btn" id="cancel-logout">No</button>
-   </div>
-</div>
-
+<!-- SCRIPT -->
 <script>
-   document.addEventListener('DOMContentLoaded', function() {
-      const logoutBtn = document.getElementById('logout-btn');  // Button to trigger the modal
-      const logoutModal = document.getElementById('logoutModal'); // Modal element
-      const closeModalBtn = document.getElementById('close-logout-modal'); // Close button in modal
-      const confirmLogoutBtn = document.getElementById('confirm-logout'); // Yes (confirm) button
-      const cancelLogoutBtn = document.getElementById('cancel-logout'); // No (cancel) button
+document.addEventListener('DOMContentLoaded', function () {
+    const logoutBtn = document.getElementById('logout-btn');
+    const logoutModal = document.getElementById('logoutModal');
+    const closeModalBtn = document.getElementById('close-logout-modal');
+    const confirmLogoutBtn = document.getElementById('confirm-logout');
+    const cancelLogoutBtn = document.getElementById('cancel-logout');
 
-      // Open modal when logout is clicked
-      logoutBtn.addEventListener('click', function(event) {
-         event.preventDefault();
-         logoutModal.style.display = 'block';
-      });
+    // Open modal on logout click
+    logoutBtn.addEventListener('click', function (event) {
+        event.preventDefault();
+        event.stopPropagation(); // Prevent dropdown from closing
+        logoutModal.style.display = 'block';
+    });
 
-      // Close modal when clicking "No" or the close button
-      cancelLogoutBtn.addEventListener('click', function() {
-         logoutModal.style.display = 'none';
-      });
+    // Close modal on cancel or close button
+    cancelLogoutBtn.addEventListener('click', () => {
+        logoutModal.style.display = 'none';
+    });
 
-      closeModalBtn.addEventListener('click', function() {
-         logoutModal.style.display = 'none';
-      });
+    closeModalBtn.addEventListener('click', () => {
+        logoutModal.style.display = 'none';
+    });
 
-      // Confirm logout when "Yes" button is clicked
-      confirmLogoutBtn.addEventListener('click', function() {
-         window.location.href = 'logout.php'; // Redirect to logout page
-      });
+    // Confirm logout
+    confirmLogoutBtn.addEventListener('click', () => {
+        window.location.href = 'logout.php';
+    });
 
-      // Close modal if clicked outside of modal content
-      window.addEventListener('click', function(event) {
-         if (event.target === logoutModal) {
+    // Close modal on outside click
+    window.addEventListener('click', function (event) {
+        if (event.target === logoutModal) {
             logoutModal.style.display = 'none';
-         }
-      });
-   });
+        }
+    });
 
+    // Optional: Close modal on ESC key
+    document.addEventListener('keydown', function (event) {
+        if (event.key === "Escape") {
+            logoutModal.style.display = 'none';
+        }
+    });
 
-   document.addEventListener("DOMContentLoaded", function () {
+    // Sidebar toggle functionality
     const sidebar = document.getElementById("sidebar");
     const toggleButton = document.querySelector(".sidebar-toggle");
 
-    // Check Local Storage for Sidebar State
     if (localStorage.getItem("sidebar-collapsed") === "true") {
         sidebar.classList.add("collapsed");
     }
 
-    // Toggle Sidebar on Click
     toggleButton.addEventListener("click", function () {
         sidebar.classList.toggle("collapsed");
-
-        // Save State in Local Storage
-        if (sidebar.classList.contains("collapsed")) {
-            localStorage.setItem("sidebar-collapsed", "true");
-        } else {
-            localStorage.setItem("sidebar-collapsed", "false");
-        }
+        localStorage.setItem("sidebar-collapsed", sidebar.classList.contains("collapsed"));
     });
 });
-
 </script>
+
+<!-- Required JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

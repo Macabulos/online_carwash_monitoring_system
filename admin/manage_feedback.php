@@ -1,5 +1,4 @@
 <?php
-
 session_start();
 require_once '../connection/conn.php'; // Database connection
 
@@ -14,11 +13,18 @@ include 'includes/head.php';
 // Fetch all feedback entries
 $sql = "SELECT f.FeedbackID, c.Username AS customer_name, s.ServiceName, f.Comments, f.Ratings, f.Response
         FROM feedback f
-        JOIN booking b ON f.BookingID = b.BookingID
+        JOIN bookings b ON f.BookingID = b.BookingID
         JOIN customer c ON b.CustomerID = c.CustomerID
         JOIN service s ON b.ServiceID = s.ServiceID
         ORDER BY f.FeedbackID DESC";
+
+// Execute the SQL query and store the result
 $result = mysqli_query($conn, $sql);
+
+// Check for errors
+if (!$result) {
+    die('Error fetching feedback data: ' . mysqli_error($conn));
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">

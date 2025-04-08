@@ -64,6 +64,24 @@ a:hover {
     box-shadow: none;
 }
 
+/* Adjust the spacing between the buttons */
+.navbar-nav .btn {
+    margin-left: 10px; /* Adds space between the buttons */
+}
+
+/* Adjustments for smaller screens */
+@media (max-width: 991px) {
+    .navbar-collapse {
+        justify-content: flex-end;
+    }
+    
+    /* Ensure buttons don't overlap */
+    .navbar-nav .btn {
+        margin-left: 0;
+        margin-top: 10px;
+    }
+}
+
 /* Carousel */
 .header-carousel .carousel-item {
     height: 100vh;

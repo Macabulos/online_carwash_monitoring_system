@@ -34,7 +34,7 @@
 
 					<li class="sidebar-item">
 						<a class="sidebar-link" href="manage_bookings.php">
-              <i class="align-middle fa fa-eye"></i> <span class="align-middle">Manage Bookings</span>
+              <i class="align-middle"></i> <span class="align-middle">Manage Bookings</span>
             </a>
 					</li>
 					
@@ -68,3 +68,4 @@
 				</div> -->
 			</div>
 		</nav>
+		
