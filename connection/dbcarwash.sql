@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 05, 2025 at 05:24 AM
+-- Generation Time: Apr 10, 2025 at 10:01 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -39,7 +39,7 @@ CREATE TABLE `admin` (
 --
 
 INSERT INTO `admin` (`AdminID`, `Email`, `Password`, `ProfilePicture`) VALUES
-(1, 'carwash@gmail.com', 'carwash', NULL);
+(1, 'carwash@gmail.com', 'carwash', '../uploads/486115675_9452392428189858_5680850207836976720_n.jpg');
 
 -- --------------------------------------------------------
 
@@ -60,8 +60,8 @@ CREATE TABLE `bookings` (
 --
 
 INSERT INTO `bookings` (`BookingID`, `CustomerID`, `ServiceID`, `BookingDate`, `StatusID`) VALUES
-(1, 6, 2, '2025-04-04 09:55:33', 1),
-(3, 5, 3, '2025-04-05 11:15:02', 1);
+(4, 5, 4, '2025-04-05 12:53:43', 2),
+(8, 5, 2, '2025-04-08 11:52:00', 2);
 
 -- --------------------------------------------------------
 
@@ -89,7 +89,11 @@ CREATE TABLE `customer` (
 INSERT INTO `customer` (`CustomerID`, `Username`, `EmailAddress`, `Age`, `Password`, `ConfirmPassword`, `ProfilePicture`, `ServiceID`, `BookingDate`, `StatusID`) VALUES
 (3, 'carwashboy', 'boy@gmail.com', 898989, '$2y$10$Z0WsRDFjENGDiyUIJCLcte38a4hS4MkJkDR.9YIRmIq2XprRWpP86', '', NULL, NULL, '2025-03-05 09:53:00', 2),
 (5, 'jake', 'jake@gmail.com', 21, '$2y$10$xXfY7cF6uIr/z9Vgehpb7ecbI51bLmDUrXTc3J9qIC6MSroYPsd/6', '$2y$10$xXfY7cF6uIr/z9Vgehpb7ecbI51bLmDUrXTc3J9qIC6MSroYPsd/6', NULL, NULL, NULL, 1),
-(6, '', '', NULL, '$2y$10$nL7klza5ui7ayDR42gO9au2eqXc4n9lnllz2rbFaQgqhGhMlyH7Gq', '', NULL, NULL, NULL, 1);
+(7, 'lester', 'lester@gmail.com', 21, '$2y$10$xtw8KbFxNA3AZUB/FbhHo.fwtZNJZgIUAgCkerE4P4yAB4/nJ8c3O', '', NULL, NULL, NULL, 1),
+(8, 'emil', 'emil@gmail.com', 26, '$2y$10$Xn.XzN2evppbU/1Qj.PoxexDvnlDLT8gc3.IvsngmlatRbaoHDBxy', '', NULL, NULL, NULL, 1),
+(9, 'jakeako', 'ako@gmail.com', 21, '$2y$10$ir5NfZz7mkxw1OI8XIaJk.lmZggHO4geSjChmqXw25ksAfSznzSx6', '', NULL, NULL, NULL, 1),
+(10, 'sad', 'sad@gmail.com', 27, '$2y$10$z4yZGRBd8DdVrOKmGjYm3OUrveY3ChgJILpH5WObig4V.E08JBLoi', '', NULL, NULL, NULL, 1),
+(11, 'what', 'what@gmail.com', 21, '$2y$10$J5XVRUnXP8fUvb29A1jKqezzm1KvxlBlvOUp0kH14QLBFuFnIz6wC', '', NULL, NULL, NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -101,7 +105,8 @@ CREATE TABLE `feedback` (
   `FeedbackID` int(11) NOT NULL,
   `CustomerID` int(11) DEFAULT NULL,
   `Comments` text DEFAULT NULL,
-  `Ratings` int(11) DEFAULT NULL
+  `Ratings` int(11) DEFAULT NULL,
+  `Response` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -126,17 +131,16 @@ CREATE TABLE `report` (
 CREATE TABLE `service` (
   `ServiceID` int(11) NOT NULL,
   `ServiceName` varchar(100) NOT NULL,
-  `Description` text DEFAULT NULL
+  `Description` text DEFAULT NULL,
+  `ImagePath` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `service`
 --
 
-INSERT INTO `service` (`ServiceID`, `ServiceName`, `Description`) VALUES
-(2, 'Waxing', 'Professional car waxing'),
-(3, 'Engine Detailing', 'Detailed cleaning of engine bay'),
-(4, 'kqdkmqlkm', 'kwdkkajdka\r\n\r\n');
+INSERT INTO `service` (`ServiceID`, `ServiceName`, `Description`, `ImagePath`) VALUES
+(1, 'Carwash ', 'Cleaning', '1744101442_carwash+service-396w.webp');
 
 -- --------------------------------------------------------
 
@@ -225,13 +229,13 @@ ALTER TABLE `admin`
 -- AUTO_INCREMENT for table `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `BookingID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `BookingID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `customer`
 --
 ALTER TABLE `customer`
-  MODIFY `CustomerID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `CustomerID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `feedback`
@@ -249,7 +253,7 @@ ALTER TABLE `report`
 -- AUTO_INCREMENT for table `service`
 --
 ALTER TABLE `service`
-  MODIFY `ServiceID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `ServiceID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `status`

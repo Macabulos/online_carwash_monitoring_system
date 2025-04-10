@@ -8,8 +8,8 @@ if (!isset($_SESSION['CustomerID'])) {
 }
 
 $CustomerID = $_SESSION['CustomerID'];
-$Username = mysqli_real_escape_string($conn, $_POST['Username']);
-$Email = mysqli_real_escape_string($conn, $_POST['email']);
+$Username = $_POST['Username'] ?? '';
+$Email = $_POST['email'] ?? '';
 $Age = isset($_POST['age']) ? (int) $_POST['age'] : null;
 
 $profile_picture = null;
@@ -36,17 +36,21 @@ if (!empty($_FILES['profile_picture']['name'])) {
     }
 }
 
-$sql = "UPDATE customer SET Username = '$Username', EmailAddress = '$Email', Age = " . ($Age !== null ? $Age : "NULL");
-if ($profile_picture) {
-    $sql .= ", ProfilePicture = '$profile_picture'";
-}
-$sql .= " WHERE CustomerID = $CustomerID";
+$sql = "UPDATE customer SET Username = ?, EmailAddress = ?, Age = ?" . ($profile_picture ? ", ProfilePicture = ?" : "") . " WHERE CustomerID = ?";
+$stmt = $conn->prepare($sql);
 
-if (mysqli_query($conn, $sql)) {
+if ($profile_picture) {
+    $stmt->bind_param("ssisi", $Username, $Email, $Age, $profile_picture, $CustomerID);
+} else {
+    $stmt->bind_param("ssii", $Username, $Email, $Age, $CustomerID);
+}
+
+if ($stmt->execute()) {
     $_SESSION['success'] = "Profile updated successfully.";
 } else {
-    $_SESSION['error'] = "Failed to update profile: " . mysqli_error($conn);
+    $_SESSION['error'] = "Failed to update profile.";
 }
 
 header("Location: profile.php");
 exit();
+?>

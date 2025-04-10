@@ -11,7 +11,6 @@ if (!isset($_SESSION['admin_id']) || empty($_SESSION['admin_id'])) {
 }
 include 'includes/head.php';
 ?>
-
 <body>
 <div class="wrapper">
     <?php include 'includes/nav.php'; ?>
@@ -20,7 +19,6 @@ include 'includes/head.php';
         <main class="content">
             <div class="container-fluid p-0">
                 <h1 class="h3 mb-3">Manage Reports</h1>
-
                 <div class="card">
                     <div class="card-header">
                         <h5 class="card-title">Generate Reports</h5>

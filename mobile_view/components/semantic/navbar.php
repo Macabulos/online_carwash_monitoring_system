@@ -2,7 +2,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container-fluid">
     <!-- Brand -->
-    <a class="navbar-brand">Online Booking</a>
+    <h1 class="navbar-brand">Online Booking Transaction Monitoring System</h1>
 
     <!-- Toggler -->
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
@@ -17,17 +17,27 @@
         <li class="nav-item"><a class="nav-link" href="./dashboard.php">Dashboard</a></li>
         <li class="nav-item"><a class="nav-link" href="./available.php">Available Bookings</a></li>
         <li class="nav-item"><a class="nav-link" href="./booking.php">Book a Service</a></li>
-        <li class="nav-item"><a class="nav-link" href="./profile.php">Edit Profile</a></li>
       </ul>
 
-      <!-- Notification & Logout Buttons -->
-      <div class="d-flex gap-2">
+      <!-- Right side buttons -->
+      <div class="d-flex align-items-center gap-2">
         <button class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#notificationModal">
           🔔 Notifications
         </button>
-        <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">
-          🚪 Logout
-        </button>
+
+        <!-- Profile Dropdown -->
+        <div class="dropdown">
+          <button class="btn btn-outline-light dropdown-toggle" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            👤 Profile
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+            <li><a class="dropdown-item" href="./profile.php">Edit Profile</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">🚪 Logout</a>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
