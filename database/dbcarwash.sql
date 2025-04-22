@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 10, 2025 at 10:01 AM
+-- Generation Time: Apr 20, 2025 at 09:27 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -60,8 +60,7 @@ CREATE TABLE `bookings` (
 --
 
 INSERT INTO `bookings` (`BookingID`, `CustomerID`, `ServiceID`, `BookingDate`, `StatusID`) VALUES
-(4, 5, 4, '2025-04-05 12:53:43', 2),
-(8, 5, 2, '2025-04-08 11:52:00', 2);
+(27, 14, 8, '2025-04-20 17:47:00', 4);
 
 -- --------------------------------------------------------
 
@@ -87,13 +86,8 @@ CREATE TABLE `customer` (
 --
 
 INSERT INTO `customer` (`CustomerID`, `Username`, `EmailAddress`, `Age`, `Password`, `ConfirmPassword`, `ProfilePicture`, `ServiceID`, `BookingDate`, `StatusID`) VALUES
-(3, 'carwashboy', 'boy@gmail.com', 898989, '$2y$10$Z0WsRDFjENGDiyUIJCLcte38a4hS4MkJkDR.9YIRmIq2XprRWpP86', '', NULL, NULL, '2025-03-05 09:53:00', 2),
-(5, 'jake', 'jake@gmail.com', 21, '$2y$10$xXfY7cF6uIr/z9Vgehpb7ecbI51bLmDUrXTc3J9qIC6MSroYPsd/6', '$2y$10$xXfY7cF6uIr/z9Vgehpb7ecbI51bLmDUrXTc3J9qIC6MSroYPsd/6', NULL, NULL, NULL, 1),
-(7, 'lester', 'lester@gmail.com', 21, '$2y$10$xtw8KbFxNA3AZUB/FbhHo.fwtZNJZgIUAgCkerE4P4yAB4/nJ8c3O', '', NULL, NULL, NULL, 1),
-(8, 'emil', 'emil@gmail.com', 26, '$2y$10$Xn.XzN2evppbU/1Qj.PoxexDvnlDLT8gc3.IvsngmlatRbaoHDBxy', '', NULL, NULL, NULL, 1),
-(9, 'jakeako', 'ako@gmail.com', 21, '$2y$10$ir5NfZz7mkxw1OI8XIaJk.lmZggHO4geSjChmqXw25ksAfSznzSx6', '', NULL, NULL, NULL, 1),
-(10, 'sad', 'sad@gmail.com', 27, '$2y$10$z4yZGRBd8DdVrOKmGjYm3OUrveY3ChgJILpH5WObig4V.E08JBLoi', '', NULL, NULL, NULL, 1),
-(11, 'what', 'what@gmail.com', 21, '$2y$10$J5XVRUnXP8fUvb29A1jKqezzm1KvxlBlvOUp0kH14QLBFuFnIz6wC', '', NULL, NULL, NULL, 1);
+(13, 'john lester', 'johnlestermacabulos@gmail.com', 21, '$2y$10$ewMoCfjzzrSxnbZBNyFdCu4NcSgpPdLkFwoglutGwSmvORcTWmA/2', '', NULL, NULL, NULL, 1),
+(14, 'jake', 'jake@gmail.com', 29, '$2y$10$r7GSgBQPup9aCDa4XFxHJ.vdUrkak2JoHUIGNj9iLCQTvsQcMsSTq', '', NULL, NULL, NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -140,7 +134,8 @@ CREATE TABLE `service` (
 --
 
 INSERT INTO `service` (`ServiceID`, `ServiceName`, `Description`, `ImagePath`) VALUES
-(1, 'Carwash ', 'Cleaning', '1744101442_carwash+service-396w.webp');
+(1, 'Carwash ', 'Here’s what you can expect from our complete car wash package:\r\n\r\n🌊 Pre-Wash\r\nA thorough rinse to remove loose dirt, debris, and surface contaminants, setting the stage for a spotless clean.\r\n\r\n🧼 Soap & Detailing\r\nWe use special car wash soap to break down grime and dirt without harming your paint. Our experts gently scrub your car’s body, windows, and wheels using soft brushes or microfiber cloths for a deep clean.\r\n\r\n🚗 Wheel & Tire Cleaning\r\nWe give special attention to your wheels and tires, removing brake dust and road grime, leaving them looking sleek and shiny.\r\n\r\n💦 Rinse & Dry\r\nA final rinse to wash away soap followed by a drying process using microfiber towels or air dryers, ensuring a streak-free and water spot-free finish.', '1744101442_carwash+service-396w.webp'),
+(8, 'Car Detailing', 'Hand wash to remove dirt, grime, and other contaminants from the surface.\r\nClay bar treatment to remove embedded contaminants that washing cannot.\r\nPolishing to restore shine, remove swirl marks, and correct imperfections in the paint.\r\nWaxing to protect the paint and provide a long-lasting glossy finish.\r\nWheel cleaning and tire dressing to ensure rims are spotless and tires have a fresh, dark appearance.\r\nWindow cleaning to remove streaks and enhance visibility.', '1744273334_cardetailing3-7b88-8696.webp');
 
 -- --------------------------------------------------------
 
@@ -160,7 +155,8 @@ CREATE TABLE `status` (
 INSERT INTO `status` (`StatusID`, `StatusName`) VALUES
 (1, 'Pending'),
 (2, 'Completed'),
-(3, 'Cancelled');
+(3, 'Cancelled'),
+(4, 'In Progress');
 
 --
 -- Indexes for dumped tables
@@ -177,7 +173,6 @@ ALTER TABLE `admin`
 --
 ALTER TABLE `bookings`
   ADD PRIMARY KEY (`BookingID`),
-  ADD UNIQUE KEY `unique_customer_service` (`CustomerID`,`ServiceID`),
   ADD KEY `ServiceID` (`ServiceID`),
   ADD KEY `StatusID` (`StatusID`);
 
@@ -229,13 +224,13 @@ ALTER TABLE `admin`
 -- AUTO_INCREMENT for table `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `BookingID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `BookingID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT for table `customer`
 --
 ALTER TABLE `customer`
-  MODIFY `CustomerID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `CustomerID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `feedback`
@@ -253,44 +248,13 @@ ALTER TABLE `report`
 -- AUTO_INCREMENT for table `service`
 --
 ALTER TABLE `service`
-  MODIFY `ServiceID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `ServiceID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `status`
 --
 ALTER TABLE `status`
-  MODIFY `StatusID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `bookings`
---
-ALTER TABLE `bookings`
-  ADD CONSTRAINT `bookings_ibfk_1` FOREIGN KEY (`CustomerID`) REFERENCES `customer` (`CustomerID`),
-  ADD CONSTRAINT `bookings_ibfk_2` FOREIGN KEY (`ServiceID`) REFERENCES `service` (`ServiceID`),
-  ADD CONSTRAINT `bookings_ibfk_3` FOREIGN KEY (`StatusID`) REFERENCES `status` (`StatusID`);
-
---
--- Constraints for table `customer`
---
-ALTER TABLE `customer`
-  ADD CONSTRAINT `customer_ibfk_1` FOREIGN KEY (`ServiceID`) REFERENCES `service` (`ServiceID`) ON DELETE SET NULL ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_customer_status` FOREIGN KEY (`StatusID`) REFERENCES `status` (`StatusID`) ON DELETE SET NULL ON UPDATE CASCADE;
-
---
--- Constraints for table `feedback`
---
-ALTER TABLE `feedback`
-  ADD CONSTRAINT `feedback_ibfk_1` FOREIGN KEY (`CustomerID`) REFERENCES `customer` (`CustomerID`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `report`
---
-ALTER TABLE `report`
-  ADD CONSTRAINT `report_ibfk_1` FOREIGN KEY (`AdminID`) REFERENCES `admin` (`AdminID`) ON DELETE CASCADE ON UPDATE CASCADE;
+  MODIFY `StatusID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

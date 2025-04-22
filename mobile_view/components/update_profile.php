@@ -9,7 +9,7 @@ if (!isset($_SESSION['CustomerID'])) {
 
 $CustomerID = $_SESSION['CustomerID'];
 $Username = $_POST['Username'] ?? '';
-$Email = $_POST['email'] ?? '';
+$Email = $_POST['EmailAddress'] ?? '';
 $Age = isset($_POST['age']) ? (int) $_POST['age'] : null;
 
 $profile_picture = null;
@@ -36,13 +36,13 @@ if (!empty($_FILES['profile_picture']['name'])) {
     }
 }
 
-$sql = "UPDATE customer SET Username = ?, EmailAddress = ?, Age = ?" . ($profile_picture ? ", ProfilePicture = ?" : "") . " WHERE CustomerID = ?";
+$sql = "UPDATE customer SET Username = ?, EmailAddressAddress = ?, Age = ?" . ($profile_picture ? ", ProfilePicture = ?" : "") . " WHERE CustomerID = ?";
 $stmt = $conn->prepare($sql);
 
 if ($profile_picture) {
-    $stmt->bind_param("ssisi", $Username, $Email, $Age, $profile_picture, $CustomerID);
+    $stmt->bind_param("ssisi", $Username, $EmailAddress, $Age, $profile_picture, $CustomerID);
 } else {
-    $stmt->bind_param("ssii", $Username, $Email, $Age, $CustomerID);
+    $stmt->bind_param("ssii", $Username, $EmailAddress, $Age, $CustomerID);
 }
 
 if ($stmt->execute()) {

@@ -1,45 +1,41 @@
 <?php
 session_start();
-require_once '../connection/conn.php'; // Database connection
+require_once '../connection/conn.php';
 
-// Ensure the user is logged in as an admin
 if (!isset($_SESSION['admin_id']) || empty($_SESSION['admin_id'])) {
     $_SESSION['error_message'] = "Unauthorized access. Please log in.";
     header("Location: ../auth/login.php");
     exit;
 }
-include 'includes/head.php';
 
-// Fetch all feedback entries
+
 $sql = "SELECT f.FeedbackID, c.Username AS customer_name, s.ServiceName, f.Comments, f.Ratings, f.Response
         FROM feedback f
-        JOIN bookings b ON f.BookingID = b.BookingID
-        JOIN customer c ON b.CustomerID = c.CustomerID
-        JOIN service s ON b.ServiceID = s.ServiceID
+        JOIN customer c ON f.CustomerID = c.CustomerID
+        LEFT JOIN bookings b ON b.CustomerID = c.CustomerID
+        LEFT JOIN service s ON b.ServiceID = s.ServiceID
         ORDER BY f.FeedbackID DESC";
 
-// Execute the SQL query and store the result
 $result = mysqli_query($conn, $sql);
-
-// Check for errors
 if (!$result) {
     die('Error fetching feedback data: ' . mysqli_error($conn));
 }
 ?>
 <!DOCTYPE html>
 <html lang="en">
+<?php include 'includes/head.php'; ?>
 <body>
 <div class="wrapper">
-    <?php include 'includes/nav.php'; ?>
+    <?php include 'includes/sidebar.php'; ?>
     <div class="main">
-        <?php include 'includes/navtop.php'; ?>
+    <?php include 'includes/navbar.php'; ?>
         <main class="content">
             <div class="container-fluid p-0">
                 <h1 class="h3 mb-3">Manage Feedback</h1>
                 <div class="row">
                     <div class="col-12">
                         <div class="card">
-                            <div class="card-body">
+                            <div class="card-body table-responsive">
                                 <table class="table table-striped">
                                     <thead>
                                         <tr>
@@ -55,14 +51,17 @@ if (!$result) {
                                     <tbody>
                                     <?php while ($row = mysqli_fetch_assoc($result)): ?>
                                         <tr>
-                                            <td><?php echo $row['FeedbackID']; ?></td>
-                                            <td><?php echo $row['customer_name']; ?></td>
-                                            <td><?php echo $row['ServiceName']; ?></td>
-                                            <td><?php echo $row['Comments']; ?></td>
-                                            <td><?php echo $row['Ratings']; ?> / 5</td>
-                                            <td><?php echo $row['Response'] ?: 'No response yet'; ?></td>
+                                            <td><?= htmlspecialchars($row['FeedbackID']) ?></td>
+                                            <td><?= htmlspecialchars($row['customer_name']) ?></td>
+                                            <td><?= htmlspecialchars($row['ServiceName'] ?? 'N/A') ?></td>
+                                            <td><?= htmlspecialchars($row['Comments']) ?></td>
+                                            <td><?= htmlspecialchars($row['Ratings']) ?> / 5</td>
+                                            <td><?= $row['Response'] ? htmlspecialchars($row['Response']) : '<em>No response yet</em>' ?></td>
                                             <td>
-                                                <button class="btn btn-primary" onclick="openResponseModal(<?php echo $row['FeedbackID']; ?>, '<?php echo htmlspecialchars($row['Response']); ?>')">Respond</button>
+                                                <button class="btn btn-primary"
+                                                        onclick="openResponseModal(<?= $row['FeedbackID'] ?>, `<?= htmlspecialchars(addslashes($row['Response'])) ?>`)">
+                                                    Respond
+                                                </button>
                                             </td>
                                         </tr>
                                     <?php endwhile; ?>
@@ -84,7 +83,7 @@ if (!$result) {
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Respond to Feedback</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -96,18 +95,23 @@ if (!$result) {
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-success">Submit</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
+<!-- Include Bootstrap JS + jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
-function openResponseModal(feedbackID, response) {
+function openResponseModal(feedbackID, response = '') {
     document.getElementById('feedback_id').value = feedbackID;
     document.getElementById('response').value = response;
-    $('#responseModal').modal('show');
+    const modal = new bootstrap.Modal(document.getElementById('responseModal'));
+    modal.show();
 }
 </script>
 </body>

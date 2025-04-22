@@ -49,3 +49,24 @@ input[type="password"] {
 }
 
 
+/* body {
+    background: 
+        linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+        url('../../img/wash.webp') no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Segoe UI', sans-serif;
+} */
+
+/* .form-container {
+    background: rgba(141, 136, 136, 0.322); 
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    width: 100%;
+    backdrop-filter: blur(10px); 
+} */

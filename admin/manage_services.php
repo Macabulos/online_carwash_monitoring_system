@@ -8,6 +8,20 @@ if (!isset($_SESSION['admin_id']) || empty($_SESSION['admin_id'])) {
     header("Location: ../auth/login.php");
     exit;
 }
+// Pagination setup
+$limit = 5; // services per page
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = ($page - 1) * $limit;
+
+// Get total services
+$totalResult = mysqli_query($conn, "SELECT COUNT(*) as total FROM service");
+$totalRow = mysqli_fetch_assoc($totalResult);
+$totalPages = ceil($totalRow['total'] / $limit);
+
+// Fetch paginated services
+$sql = "SELECT * FROM service ORDER BY ServiceID ASC LIMIT $limit OFFSET $offset";
+$result = mysqli_query($conn, $sql);
+
 
 // Fetch all services
 $sql = "SELECT * FROM service ORDER BY ServiceID ASC";
@@ -36,13 +50,12 @@ if (isset($_POST['delete_service'])) {
 <?php include 'includes/head.php'; ?>
 <body>
 <div class="wrapper">
-    <?php include 'includes/nav.php'; ?>
+<?php include 'includes/sidebar.php'; ?>
     <div class="main">
-        <?php include 'includes/navtop.php'; ?>
+        <?php include 'includes/navbar.php'; ?>
         <main class="content">
             <div class="container-fluid p-0">
                 <h1 class="h3 mb-3">Manage Services</h1>
-
                 <!-- Alert Messages -->
                 <?php if (isset($_SESSION['success_message'])): ?>
                     <div class="alert alert-success"><?php echo $_SESSION['success_message']; unset($_SESSION['success_message']); ?></div>
@@ -75,7 +88,10 @@ if (isset($_POST['delete_service'])) {
                                             <td><?php echo $row['ServiceID']; ?></td>
                                             <td><img src="../uploads/services/<?php echo $row['ImagePath']; ?>" width="80"></td>
                                             <td><?php echo $row['ServiceName']; ?></td>
-                                            <td><?php echo $row['Description']; ?></td>
+                                            <td title="<?php echo htmlspecialchars($row['Description']); ?>">
+                                                <?php echo strlen($row['Description']) > 50 ? substr($row['Description'], 0, 50) . '...' : $row['Description']; ?>
+                                            </td>
+
                                             <td>
                                                 <button class="btn btn-warning btn-sm" onclick="editService(<?php echo $row['ServiceID']; ?>)" data-bs-toggle="modal" data-bs-target="#editServiceModal">
                                                     <i class="fa fa-edit"></i> Edit
@@ -91,6 +107,28 @@ if (isset($_POST['delete_service'])) {
                                     <?php endwhile; ?>
                                     </tbody>
                                 </table>
+                                <!-- Pagination Controls -->
+                                <nav>
+                                    <ul class="pagination justify-content-end mt-3">
+                                        <?php if ($page > 1): ?>
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page=<?php echo $page - 1; ?>">Previous</a>
+                                            </li>
+                                        <?php endif; ?>
+
+                                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                                            <li class="page-item <?php echo ($i == $page) ? 'active' : ''; ?>">
+                                                <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                                            </li>
+                                        <?php endfor; ?>
+
+                                        <?php if ($page < $totalPages): ?>
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page=<?php echo $page + 1; ?>">Next</a>
+                                            </li>
+                                        <?php endif; ?>
+                                    </ul>
+                                </nav>
                             </div>
                         </div>
                     </div>
@@ -150,6 +188,15 @@ if (isset($_POST['delete_service'])) {
 
 <?php include 'includes/scripts.php'; ?>
 <script>
+
+setTimeout(() => {
+    const alert = document.querySelector('.alert');
+    if (alert) {
+      const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
+      bsAlert.close();
+    }
+  }, 3000);
+
 function editService(serviceID) {
     fetch('edit_service.php?id=' + serviceID)
         .then(response => response.text())

@@ -1,41 +1,49 @@
-<?php
-// Start the session at the top of your file
+<?php 
 session_start();
+include '../../connection/conn.php';
 
-// Include database connection
-include '../../connection/conn.php'; // Ensure this connects and assigns to $conn
-
-// Check if the user is logged in
 if (!isset($_SESSION['CustomerID'])) {
     header("Location: login.php");
     exit();
 }
 
-// Fetch the logged-in user's ID
 $CustomerID = $_SESSION['CustomerID'];
 
-// Prepare the query
-$query = "SELECT b.BookingID, b.BookingDate, b.StatusID, s.ServiceName, c.Username, st.StatusName
-          FROM bookings b
-          JOIN customer c ON b.CustomerID = c.CustomerID
-          JOIN service s ON b.ServiceID = s.ServiceID
-          JOIN status st ON b.StatusID = st.StatusID
-          WHERE b.CustomerID = ?  -- Filter by logged-in customer
-          ORDER BY b.BookingDate DESC";
+// Handle cancel request
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_booking_id'])) {
+    $cancel_id = intval($_POST['cancel_booking_id']);
 
-// Prepare and execute the query with parameter binding
-$stmt = $conn->prepare($query); // Changed $mysqli to $conn
-if ($stmt === false) {
-    die("Error preparing query: " . $conn->error); // Changed $mysqli to $conn
+    $cancel_query = "DELETE FROM bookings WHERE BookingID = ? AND CustomerID = ?";
+    $cancel_stmt = $conn->prepare($cancel_query);
+    $cancel_stmt->bind_param("ii", $cancel_id, $CustomerID);
+
+    if ($cancel_stmt->execute()) {
+        $_SESSION['message'] = 'Booking has been cancelled.';
+        $_SESSION['message_type'] = 'success';
+    } else {
+        $_SESSION['message'] = 'Failed to cancel the booking.';
+        $_SESSION['message_type'] = 'danger';
+    }
 }
 
-$stmt->bind_param("i", $CustomerID); // Ensure this is the same variable as above
+// Removed StatusName from select
+$query = "SELECT b.BookingID, b.BookingDate, s.ServiceName
+          FROM bookings b
+          JOIN service s ON b.ServiceID = s.ServiceID
+          WHERE b.CustomerID = ?
+          ORDER BY b.BookingDate DESC";
+
+$stmt = $conn->prepare($query);
+if ($stmt === false) {
+    die("Error preparing query: " . $conn->error);
+}
+
+$stmt->bind_param("i", $CustomerID);
 $stmt->execute();
 $result = $stmt->get_result();
 
-// Check if there were any bookings found
 if (!$result) {
-    die("Error: " . $conn->error); // Changed $mysqli to $conn
+    die("Error: " . $conn->error);
 }
 ?>
 
@@ -44,63 +52,112 @@ if (!$result) {
 <?php include './semantic/head.php'; ?>
 <body>
 
-<!-- Navbar -->
 <?php include './semantic/navbar.php'; ?>
 
-<!-- Dashboard Section -->
 <section id="dashboard" class="container mt-5">
     <h2>Your Booking Dashboard</h2>
 
-    <!-- Booking Cards -->
+    <!-- Flash message -->
+    <?php
+    if (isset($_SESSION['message'])) {
+        $message = $_SESSION['message'];
+        $message_type = $_SESSION['message_type'];
+        echo "<div class='alert alert-$message_type text-center' id='alert-message'>$message</div>";
+        unset($_SESSION['message'], $_SESSION['message_type']);
+    }
+    ?>
+
     <div class="row">
-        <?php while ($row = $result->fetch_assoc()) : ?>
-            <div class="col-md-4 mb-4">
-                <!-- Single Booking Card with fade-in animation -->
-                <div class="card fadeIn">
-                    <div class="card-body">
-                        <h5 class="card-title">Booking #<?php echo $row['BookingID']; ?></h5>
-                        <p class="card-text"><strong>Service:</strong> <?php echo htmlspecialchars($row['ServiceName']); ?></p>
-                        <p class="card-text"><strong>Customer:</strong> <?php echo htmlspecialchars($row['Username']); ?></p>
-                        <p class="card-text"><strong>Booking Date:</strong> <?php echo date('Y-m-d H:i', strtotime($row['BookingDate'])); ?></p>
-                        <p class="card-text">
-                            <strong>Status:</strong>
-                            <span class="badge 
-                            <?php
-                                switch ($row['StatusID']) {
-                                    case 1: echo 'badge-warning'; break; // Pending
-                                    case 2: echo 'badge-success'; break; // Completed
-                                    case 3: echo 'badge-danger'; break; // Cancelled
-                                    default: echo 'badge-secondary'; break;
-                                }
-                            ?>"><?php echo htmlspecialchars($row['StatusName']); ?></span>
-                        </p>
-                    </div>
+    <?php while ($row = $result->fetch_assoc()) : ?>
+        <div class="col-md-4 mb-4">
+            <div class="card fadeIn">
+                <div class="card-body">
+                    <h5 class="card-title">Booking #<?php echo $row['BookingID']; ?></h5>
+                    <p class="card-text"><strong>Reference:</strong> <?php echo 'REF-' . str_pad($row['BookingID'], 7, '0', STR_PAD_LEFT); ?></p>
+                    <p class="card-text"><strong>Service:</strong> <?php echo htmlspecialchars($row['ServiceName']); ?></p>
+                    <p class="card-text"><strong>Booking Date:</strong> <?php echo date('Y-m-d H:i', strtotime($row['BookingDate'])); ?></p>
+
+                    <?php
+                    $bookingTime = strtotime($row['BookingDate']);
+                    $currentTime = time();
+                    $cancelDisabled = (($bookingTime - $currentTime) / 3600) <= 2;
+                    $bookingID = $row['BookingID'];
+                    ?>
+
+                    <?php if ($cancelDisabled): ?>
+                        <button type="button" class="btn btn-sm btn-secondary mt-2" disabled title="Cannot cancel less than 2 hours before booking">
+                            Cancel
+                        </button>
+                    <?php else: ?>
+                        <button id="cancel-btn-<?php echo $bookingID; ?>" type="button" class="btn btn-sm btn-danger mt-2" data-bs-toggle="modal" data-bs-target="#cancelModal<?php echo $bookingID; ?>">
+                            Cancel
+                        </button>
+                    <?php endif; ?>
                 </div>
             </div>
-        <?php endwhile; ?>
+        </div>
+
+        <!-- Cancel Modal -->
+        <div class="modal fade" id="cancelModal<?php echo $bookingID; ?>" tabindex="-1" aria-labelledby="cancelModalLabel<?php echo $bookingID; ?>" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <form method="POST">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="cancelModalLabel<?php echo $bookingID; ?>">Cancel Booking</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to cancel booking <strong>#<?php echo $bookingID; ?></strong>?
+                        </div>
+                        <div class="modal-footer">
+                            <input type="hidden" name="cancel_booking_id" value="<?php echo $bookingID; ?>">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                            <button type="submit" class="btn btn-danger">Yes, Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    <?php endwhile; ?>
     </div>
+</section>
 
-    <!-- Add Custom Button -->
-    <!-- <div class="text-center mt-4">
-        <a href="booking.php" class="btn-custom">Create New Booking</a>
-    </div>
-</section> -->
-
-<!-- Footer -->
-
-<!-- JavaScript -->
-<!-- <script>
-    // Optional: Add some interactive elements via JS if needed
-    // For instance, a confirmation alert when creating a new booking.
-    document.querySelector('.btn-custom').addEventListener('click', function() {
-        alert('Redirecting to booking creation page...');
-    });
-</script> -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const alertMessage = document.getElementById('alert-message');
+    if (alertMessage) {
+        setTimeout(() => {
+            alertMessage.style.display = 'none';
+        }, 3000);
+    }
+});
+</script>
 
 </body>
 </html>
 
 <?php
-// Close the database connection
-$conn->close(); // Changed $mysqli to $conn
+$conn->close();
 ?>
+
+
+<!--  // Define the cancel window (e.g., 2 hours before booking time) -->
+<!-- <?php
+    
+    $bookingTime = strtotime($row['BookingDate']);
+    $currentTime = time();
+    $diffInHours = ($bookingTime - $currentTime) / 3000;
+    $cancelDisabled = $diffInHours <= 2;
+    $bookingID = $row['BookingID'];
+?>
+
+<?php if ($cancelDisabled): ?>
+    <button type="button" class="btn btn-sm btn-secondary mt-2" disabled title="Cannot cancel less than 2 hours before booking">
+        Cancel
+    </button>
+<?php else: ?>
+    <button type="button" class="btn btn-sm btn-danger mt-2" data-bs-toggle="modal" data-bs-target="#cancelModal<?php echo $bookingID; ?>">
+        Cancel
+    </button>
+<?php endif; ?> -->

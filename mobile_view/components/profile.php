@@ -2,12 +2,14 @@
 session_start();
 require_once '../../connection/conn.php'; // update path as needed
 
-// Assuming admin is logged in and their ID is stored in session
-$adminID = 1; // Replace this with: $_SESSION['admin_id']; if session-based login is active
+// Assuming customer is logged in and their ID is stored in session
+$customerID = 13; // Replace with: $_SESSION['customer_id'] if sessions are working
 
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = $_POST['username'];
     $email = $_POST['email'];
+    $age = $_POST['age'];
     $password = !empty($_POST['password']) ? password_hash($_POST['password'], PASSWORD_DEFAULT) : null;
 
     // Handle profile picture upload
@@ -20,11 +22,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $updatePic = "";
     }
 
-    $sql = "UPDATE admin SET Email = '$email' $updatePic";
+    // Build update query
+    $sql = "UPDATE customer SET Username = '$username', EmailAddress = '$email', Age = $age $updatePic";
     if ($password) {
         $sql .= ", Password = '$password'";
     }
-    $sql .= " WHERE AdminID = $adminID";
+    $sql .= " WHERE CustomerID = $customerID";
 
     if (mysqli_query($conn, $sql)) {
         $message = "Profile updated successfully!";
@@ -33,28 +36,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-// Fetch current admin data
-$result = mysqli_query($conn, "SELECT * FROM admin WHERE AdminID = $adminID");
-$admin = mysqli_fetch_assoc($result);
+// Fetch current customer data
+$result = mysqli_query($conn, "SELECT * FROM customer WHERE CustomerID = $customerID");
+$customer = mysqli_fetch_assoc($result);
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-<!-- <head>
-  <meta charset="UTF-8">
-  <title>Edit Profile</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-</head> -->
 <?php include './semantic/head.php'; ?>
 <?php include './semantic/navbar.php'; ?>
 <body class="bg-light">
 <div class="container py-5">
   <h2>Edit Profile</h2>
-  <?php if (isset($message)) echo "<div class='alert alert-info'>$message</div>"; ?>
+  <!-- <?php if (isset($message)) echo "<div class='alert alert-info'>$message</div>"; ?> -->
   <form action="" method="POST" enctype="multipart/form-data" class="p-4 bg-white rounded shadow-sm">
+
+    <div class="mb-3">
+      <label>Username</label>
+      <input type="text" name="username" value="<?= htmlspecialchars($customer['Username']) ?>" class="form-control" required>
+    </div>
+
     <div class="mb-3">
       <label>Email Address</label>
-      <input type="email" name="email" value="<?= htmlspecialchars($admin['Email']) ?>" class="form-control" required>
+      <input type="email" name="email" value="<?= htmlspecialchars($customer['EmailAddress']) ?>" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+      <label>Age</label>
+      <input type="number" name="age" value="<?= htmlspecialchars($customer['Age']) ?>" class="form-control" required>
     </div>
 
     <div class="mb-3">
@@ -64,8 +73,8 @@ $admin = mysqli_fetch_assoc($result);
 
     <div class="mb-3">
       <label>Profile Picture</label><br>
-      <?php if ($admin['ProfilePicture']): ?>
-        <img src="<?= $admin['ProfilePicture'] ?>" width="100" class="img-thumbnail mb-2"><br>
+      <?php if ($customer['ProfilePicture']): ?>
+        <img src="<?= $customer['ProfilePicture'] ?>" width="100" class="img-thumbnail mb-2"><br>
       <?php endif; ?>
       <input type="file" name="profile_picture" class="form-control">
     </div>
@@ -74,5 +83,6 @@ $admin = mysqli_fetch_assoc($result);
     <a href="./dashboard.php" class="btn btn-secondary">Cancel</a>
   </form>
 </div>
+
 </body>
 </html>

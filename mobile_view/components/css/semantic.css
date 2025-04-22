@@ -151,6 +151,7 @@ body {
     margin-left: auto;
   }
   /* === Navbar Styling === */
+
   .navbar {
     padding: 10px;
   }
@@ -234,3 +235,17 @@ body {
       text-align: center;
     }
   }
+
+
+  .fadeIn {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}

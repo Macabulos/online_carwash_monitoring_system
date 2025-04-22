@@ -89,7 +89,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="row border rounded-5 p-3 bg-white shadow box-area">
                 <div class="col-md-6 d-flex justify-content-center align-items-center flex-column left-box">
                     <div class="featured-image mb-3">
-                        <img src="../img/444.png" class="img-fluid" style="width: 400px; border-radius: 10px;">
+                        <img src="../img/NEW1.png" class="img-fluid" style="width: 400px; border-radius: 10px;">
                     </div>
                 </div>
                 <div class="col-md-6 right-box">

@@ -32,69 +32,18 @@ $totalUsersQuery = "SELECT COUNT(*) AS total FROM customer"; // Assuming 'custom
 $totalUsersResult = mysqli_query($conn, $totalUsersQuery);
 $totalUsers = mysqli_fetch_assoc($totalUsersResult)['total'] ?? 0;
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <?php include 'includes/head.php'; ?>
     <title>Admin Dashboard</title>
-    <style>
-        /* General Styles */
-        body {
-            background-color: #f8f9fa;
-            font-family: Arial, sans-serif;
-        }
-
-        /* Card Styling */
-        .card {
-            border: 1px solid #ddd;
-            margin-bottom: 20px;
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease;
-            border-radius: 10px;
-            opacity: 0;
-            animation: fadeInUp 0.8s forwards;
-        }
-
-        .card-body {
-            padding: 20px;
-            background-color: #ffffff;
-            border-radius: 10px;
-        }
-
-        .card-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #007bff;
-        }
-
-        .card-text {
-            font-size: 1rem;
-        }
-
-        /* Animation for Fade-In and Up */
-        @keyframes fadeInUp {
-            from {
-                transform: translateY(20px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        /* Hover effect */
-        .card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
-        }
-
-    </style>
 </head>
 <body>
     <div class="wrapper">
-        <?php include 'includes/nav.php'; ?>
+        <?php include 'includes/sidebar.php'; ?>
         <div class="main">
-            <?php include 'includes/navtop.php'; ?>
+            <?php include 'includes/navbar.php'; ?>
             <main class="content">
                 <div class="container-fluid">
                     <h1 class="h3 mb-3">Admin Dashboard</h1>

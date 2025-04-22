@@ -50,7 +50,7 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarCollapse">
                 <div class="navbar-nav mx-auto py-0">
-                    <a href="#" class="nav-item nav-link active">Home</a>
+                    <a href="#" class="nav-item nav-link">Home</a>
                     <a href="#about" class="nav-item nav-link">About</a>
                     <a href="#service" class="nav-item nav-link">Services</a>
                     <a href="#blog" class="nav-item nav-link">Blog</a>
@@ -58,10 +58,10 @@
                         <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
                         <div class="dropdown-menu m-0">
                             <a href="feature.html" class="dropdown-item">Our Features</a>
-                            <a href="pricing.html" class="dropdown-item">Pricing</a>
-                            <a href="team.html" class="dropdown-item">Our Team</a>
+                            <a href="pricing.php" class="dropdown-item">Pricing</a>
+                            <!-- <a href="team.html" class="dropdown-item">Our Team</a>
                             <a href="testimonial.html" class="dropdown-item">Testimonials</a>
-                            <a href="error.php" class="dropdown-item">404 Page</a>
+                            <a href="error.php" class="dropdown-item">404 Page</a> -->
                         </div>
                     </div>
                     <a href="#contact" class="nav-item nav-link">Contact</a>
@@ -89,7 +89,8 @@
                         <div class="carousel-caption">
                             <div class="container py-4">
                                 <div class="row g-5">
-                                    <div class="col-lg-6 d-none d-lg-flex fadeInRight animated" data-animation="fadeInRight" data-delay="1s" style="animation-delay: 1s;">
+                                <div class="col-lg-6 d-flex justify-content-center align-items-center text-center text-lg-start fadeInRight animated">
+
                                         <div class="text-start">
                                             <h1 class="display-5 text-white">Get 15% Off Your First Wash!</h1>
                                             <p>Treat your car to a Duck'z Auto Detailing & Car Wash</p>
@@ -104,7 +105,7 @@
                         <div class="carousel-caption">
                             <div class="container py-4">
                                 <div class="row g-5">
-                                    <div class="col-lg-6 d-none d-lg-flex fadeInRight animated" data-animation="fadeInRight" data-delay="1s" style="animation-delay: 1s;">
+                                <div class="col-lg-6 d-flex justify-content-center align-items-center text-center text-lg-start fadeInRight animated">
                                         <div class="text-start">
                                             <h1 class="display-5 text-white">Premium Auto Detailing Services</h1>
                                             <p>Restore your car's shine</p>
@@ -270,7 +271,7 @@
                     <div class="col-lg-4 wow fadeInUp" data-wow-delay="0.1s">
                         <div class="blog-item">
                             <div class="blog-img">
-                                <img src="img/blog-1.jpg" class="img-fluid rounded-top w-100" alt="Image">
+                                <img src="../img/shining-car.jpg" class="img-fluid rounded-top w-100" alt="Image">
                             </div>
                             <div class="blog-content rounded-bottom p-4">
                                 <div class="blog-date">30 Dec 2025</div>
@@ -287,7 +288,7 @@
                     <div class="col-lg-4 wow fadeInUp" data-wow-delay="0.3s">
                         <div class="blog-item">
                             <div class="blog-img">
-                                <img src="img/blog-2.jpg" class="img-fluid rounded-top w-100" alt="Image">
+                                <img src="../img/detailing.jpg" class="img-fluid rounded-top w-100" alt="Image">
                             </div>
                             <div class="blog-content rounded-bottom p-4">
                                 <div class="blog-date">25 Dec 2025</div>
@@ -304,7 +305,7 @@
                     <div class="col-lg-4 wow fadeInUp" data-wow-delay="0.5s">
                         <div class="blog-item">
                             <div class="blog-img">
-                                <img src="img/blog-3.jpg" class="img-fluid rounded-top w-100" alt="Image">
+                                <img src="../img/tips.jpg" class="img-fluid rounded-top w-100" alt="Image">
                             </div>
                             <div class="blog-content rounded-bottom p-4">
                                 <div class="blog-date">27 Dec 2025</div>
@@ -342,7 +343,7 @@
                             <h4 class="text-white mb-4">Quick Links</h4>
                             <a href="#"><i class="fas fa-angle-right me-2"></i> About</a>
                             <a href="#"><i class="fas fa-angle-right me-2"></i> Services</a>
-                            <a href="#"><i class="fas fa-angle-right me-2"></i> Pricing</a>
+                            <a href="./pricing.php"><i class="fas fa-angle-right me-2"></i> Pricing</a>
                             <a href="#"><i class="fas fa-angle-right me-2"></i> Team</a>
                             <a href="#"><i class="fas fa-angle-right me-2"></i> Contact us</a>
                             <a href="#"><i class="fas fa-angle-right me-2"></i> Terms & Conditions</a>
@@ -368,7 +369,7 @@
                     <div class="col-md-6 col-lg-6 col-xl-3">
                         <div class="footer-item d-flex flex-column">
                             <h4 class="text-white mb-4">Contact Info</h4>
-                            <a href="#"><i class="fa fa-map-marker-alt me-2"></i> 123 Street, New York, USA</a>
+                            <a href="#"><i class="fa fa-map-marker-alt me-2"></i>Tacloban City</a>
                             <a href="mailto:info@example.com"><i class="fas fa-envelope me-2"></i> info@example.com</a>
                             <a href="tel:+012 345 67890"><i class="fas fa-phone me-2"></i> +012 345 67890</a>
                             <a href="tel:+012 345 67890" class="mb-3"><i class="fas fa-print me-2"></i> +012 345 67890</a>
@@ -393,7 +394,7 @@
                         <span class="text-body"><a href="#" class="border-bottom text-white"><i class="fas fa-copyright text-light me-2"></i>Duck'z Auto Detailing & Car Wash</a>, All right reserved.</span>
                     </div>
                     <div class="col-md-6 text-center text-md-end text-body">
-                        Designed By <a class="border-bottom text-white" href="https://htmlcodex.com">HTML Codex</a>
+                        Designed By <a class="border-bottom text-white" ></a>
                     </div>
                 </div>
             </div>

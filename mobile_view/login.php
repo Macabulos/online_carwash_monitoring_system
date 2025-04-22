@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
             $_SESSION['success'] = "Successfully logged in! Redirecting...";
 
             // Delay redirection for 5 seconds
-            header("Refresh: 5; URL=./components/dashboard.php");
+            header("Refresh: 2; URL=./components/dashboard.php");
         } else {
             $_SESSION['error'] = "Invalid password!";
             header("Location: login.php");
@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
             <input type="password" class="form-control" placeholder="Password" name="password" id="password" required>
             <i class="fas fa-eye" id="togglePassword"></i>
         </div>
-        <button type="submit" name="login" class="btn btn-success">Login</button>
+        <button type="submit" name="login" class="btn btn-primary">Login</button>
     </form>
 </div>
 

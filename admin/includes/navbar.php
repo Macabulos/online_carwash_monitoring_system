@@ -22,7 +22,6 @@
             <a class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#" data-bs-toggle="dropdown">
                <span class="text-dark">Hi, <?php echo $_SESSION["email"]; ?></span>
             </a>
-
             <div class="dropdown-menu dropdown-menu-end">
                <a class="dropdown-item" href="#" id="logout-btn">
                   <i class='bx bx-log-out'></i> Log out
@@ -44,84 +43,7 @@
    </div>
 </div>
 
-<!-- MODAL CSS -->
-<style>
-.logout-modal {
-    display: none;
-    position: fixed;
-    z-index: 100;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.6);
-    transition: opacity 0.3s ease-in-out;
-}
 
-.logout-modal-content {
-    background-color: white;
-    margin: 10% auto;
-    padding: 30px;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 450px;
-    text-align: center;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    position: relative;
-    transition: transform 0.3s ease-in-out;
-}
-
-.logout-modal-content h2 {
-    margin-top: 0;
-    font-size: 24px;
-    color: #333;
-}
-
-.logout-modal-content p {
-    font-size: 16px;
-    color: #666;
-    margin-bottom: 30px;
-}
-
-.logout-modal-content .close {
-    position: absolute;
-    right: 15px;
-    top: 15px;
-    font-size: 20px;
-    color: #888;
-    cursor: pointer;
-}
-
-.logout-modal-content .confirm-btn {
-    padding: 12px 25px;
-    background-color: #e74c3c;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    margin-right: 10px;
-}
-
-.logout-modal-content .cancel-btn {
-    padding: 12px 25px;
-    background-color: #bdc3c7;
-    color: #333;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-.logout-modal-content .confirm-btn:hover {
-    background-color: #c0392b;
-}
-
-.logout-modal-content .cancel-btn:hover {
-    background-color: #95a5a6;
-}
-</style>
 
 <!-- SCRIPT -->
 <script>
@@ -183,5 +105,5 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 <!-- Required JS -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> -->

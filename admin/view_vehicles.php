@@ -17,9 +17,9 @@ $result = mysqli_query($conn, $sql);
 <?php include 'includes/head.php'; ?>
 <body>
 <div class="wrapper">
-    <?php include 'includes/nav.php'; ?>
+<?php include 'includes/sidebar.php'; ?>
     <div class="main">
-        <?php include 'includes/navtop.php'; ?>
+        <?php include 'includes/sidebar.php'; ?>
         <main class="content">
             <div class="container-fluid p-0">
                 <h1 class="h3 mb-3">Manage Vehicle Bookings</h1>

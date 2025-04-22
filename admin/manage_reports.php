@@ -9,13 +9,15 @@ if (!isset($_SESSION['admin_id']) || empty($_SESSION['admin_id'])) {
     header("Location: ../auth/login.php");
     exit;
 }
-include 'includes/head.php';
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<?php include 'includes/head.php'; ?>
 <body>
 <div class="wrapper">
-    <?php include 'includes/nav.php'; ?>
+<?php include 'includes/sidebar.php'; ?>
     <div class="main">
-        <?php include 'includes/navtop.php'; ?>
+        <?php include 'includes/navbar.php'; ?>
         <main class="content">
             <div class="container-fluid p-0">
                 <h1 class="h3 mb-3">Manage Reports</h1>
