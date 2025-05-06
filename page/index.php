@@ -43,7 +43,9 @@
     <div class="container">
         <nav class="navbar navbar-expand-lg navbar-light">
             <a href="" class="navbar-brand p-0">
-                <h1 class="display-6 text-primary"><i class="fas fa-car-alt me-3"></i>Duck’z Auto</h1>
+            <h1 class="display-5 text-primary">
+    <i class="fas fa-car-alt me-2"></i>Duck’z Auto Detailing & Car Wash
+</h1>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                 <span class="fa fa-bars"></span>
@@ -67,8 +69,7 @@
                     <a href="#contact" class="nav-item nav-link">Contact</a>
                 </div>
                 <div class="d-flex">
-                    <a href="../mobile_view/register.php" class="btn btn-primary rounded-pill py-2 px-4">Get Started</a>
-                    <a href="../mobile_view/login.php" class="btn btn-primary rounded-pill py-2 px-4 ms-2">Login</a>
+                    <a href="../mobile_view/login.php" class="btn btn-primary rounded-pill py-2 px-4">Get Started</a>
                 </div>
             </div>
         </nav>

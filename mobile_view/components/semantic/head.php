@@ -14,3 +14,10 @@
     <title>Dashboard</title>
 
 </head>
+<?php
+if (!isset($customer) && isset($_SESSION['customer_id'])) {
+    $customerID = $_SESSION['customer_id'];
+    $result = mysqli_query($conn, "SELECT * FROM customer WHERE CustomerID = $customerID");
+    $customer = mysqli_fetch_assoc($result);
+}
+?>

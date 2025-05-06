@@ -3,8 +3,13 @@ session_start();
 require_once '../../connection/conn.php'; // update path as needed
 
 // Assuming customer is logged in and their ID is stored in session
-$customerID = 13; // Replace with: $_SESSION['customer_id'] if sessions are working
-
+$customerID = $_SESSION['CustomerID'];
+// Replace with: $_SESSION['customer_id'] if sessions are working
+if (isset($_SESSION['CustomerID'])) {
+  $customerID = $_SESSION['CustomerID'];
+  $result = mysqli_query($conn, "SELECT * FROM customer WHERE CustomerID = $customerID");
+  $customer = mysqli_fetch_assoc($result);
+}
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];

@@ -1,17 +1,23 @@
+/* General Body Style */
 body {
-    background-color: #f8f9fa;
+    background: 
+        linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+        url('../../img/wash.webp') no-repeat center center fixed;
+    background-size: cover;
     display: flex;
     align-items: center;
     justify-content: center;
     min-height: 100vh;
+    font-family: 'Segoe UI', sans-serif;
 }
 
+/* Form Container */
 .form-container {
     background-color: #fff;
     padding: 2rem;
     border-radius: 1rem;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    max-width: 400px;
+    max-width: 400px; /* Default max width */
     width: 100%;
 }
 
@@ -48,25 +54,232 @@ input[type="password"] {
     color: #007bff;
 }
 
-
-/* body {
-    background: 
-        linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
-        url('../../img/wash.webp') no-repeat center center fixed;
-    background-size: cover;
+/* Container for Google and Register buttons */
+.d-flex {
     display: flex;
+    justify-content: space-between;
+    gap: 10px; /* Adds space between the buttons */
+}
+
+/* Width for each button (48% of the container's width) */
+.w-48 {
+    width: 48%;
+}
+
+.divider {
+    margin: 0.5rem 0;
+    align-items: center;
+    text-align: center;
+}
+
+.login-btn {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
-    font-family: 'Segoe UI', sans-serif;
-} */
-
-/* .form-container {
-    background: rgba(141, 136, 136, 0.322); 
-    padding: 2rem;
-    border-radius: 1rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    max-width: 400px;
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    background-color: #ffffff;
+    color: rgb(0, 0, 0);
+    border: 1px solid #6c757d;
+    border-radius: 0.25rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
     width: 100%;
-    backdrop-filter: blur(10px); 
-} */
+    height: 40px;
+}
+
+.login-btn:hover {
+    background-color: #5a6268;
+    border-color: #6c757d;
+    color: #ffffff;
+}
+
+/* Google Button Styling */
+.google-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    background-color: #ffffff;
+    color: rgb(0, 0, 0);
+    border: 1px solid #6c757d;
+    border-radius: 0.25rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    width: 200px;
+    height: 40px;
+}
+
+.google-btn:hover {
+    background-color: #5a6268;
+    border-color: #5a6268;
+}
+
+.register-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    background-color: #ffffff;
+    color: rgb(0, 0, 0);
+    border: 1px solid #6c757d;
+    border-radius: 0.25rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    width: 200px;
+    height: 40px;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #5a6268;
+}
+
+/* Responsive Styles */
+/* For Mobile Phones */
+@media (max-width: 576px) {
+    .form-container {
+        max-width: 95%; /* Make container 95% of the screen width on smaller screens */
+        padding: 1.2rem; /* Adjust padding further for very small screens */
+    }
+}
+
+/* Heading */
+h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+/* Button Styles */
+.btn {
+    width: 100%;
+}
+
+/* Eye Icon Styling */
+.mb-3 {
+    position: relative;
+}
+
+#togglePassword, #toggleConfirmPassword {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #6c757d;
+    font-size: 1.2rem;
+}
+
+input[type="password"] {
+    padding-right: 30px; /* Space for the eye icon */
+}
+
+/* Hover effect for eye icon */
+#togglePassword:hover, #toggleConfirmPassword:hover {
+    color: #007bff;
+}
+
+/* Container for Google and Register buttons */
+.d-flex {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px; /* Adds space between the buttons */
+}
+
+/* Width for each button */
+.w-48 {
+    width: 48%;
+}
+
+.divider {
+    margin: 0.5rem 0;
+    align-items: center;
+    text-align: center;
+}
+
+/* Login Button Styling */
+.login-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    background-color: #ffffff;
+    color: rgb(0, 0, 0);
+    border: 1px solid #6c757d;
+    border-radius: 0.25rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    width: 100%;
+    height: 40px;
+}
+
+.login-btn:hover {
+    background-color: #5a6268;
+    border-color: #6c757d;
+    color: #ffffff;
+}
+
+/* Google Button Styling */
+.google-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    background-color: #ffffff;
+    color: rgb(0, 0, 0);
+    border: 1px solid #6c757d;
+    border-radius: 0.25rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    width: 200px;
+    height: 40px;
+}
+
+.google-btn:hover {
+    background-color: #5a6268;
+    border-color: #5a6268;
+}
+
+/* Register Button Styling */
+.register-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    background-color: #ffffff;
+    color: rgb(0, 0, 0);
+    border: 1px solid #6c757d;
+    border-radius: 0.25rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    width: 200px;
+    height: 40px;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #5a6268;
+}
+
+/* Responsive Adjustments */
+
+/* For Tablets */
+@media (max-width: 768px) {
+    .form-container {
+        max-width: 90%; /* Make container 90% of the screen width on tablets */
+        padding: 1.5rem;
+    }
+}
+
+/* For Mobile Phones */
+@media (max-width: 576px) {
+    .form-container {
+        max-width: 95%; /* Make container 95% of the screen width on mobile phones */
+        padding: 1.2rem;
+    }
+}

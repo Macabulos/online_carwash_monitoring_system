@@ -76,15 +76,14 @@ $result = mysqli_query($conn, $query);
                 <?php if (isset($_SESSION['success_message'])): ?>
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         <?= $_SESSION['success_message']; unset($_SESSION['success_message']); ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                       
                     </div>
                 <?php elseif (isset($_SESSION['error_message'])): ?>
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         <?= $_SESSION['error_message']; unset($_SESSION['error_message']); ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                       
                     </div>
                 <?php endif; ?>
-
                 <div class="card">
                     <div class="card-body table-responsive">
                         <table class="table table-striped table-bordered">
@@ -160,7 +159,7 @@ $result = mysqli_query($conn, $query);
       <div class="modal-body">
         <input type="hidden" name="booking_id" id="booking_id">
         <label>Status</label>
-        <select class="form-control" name="status_id" required>
+        <select class="form-control" name="status_id" required style="padding: 2px;">
           <option value="1">Pending</option>
           <option value="2">Completed</option>
           <option value="3">Cancelled</option>

@@ -251,7 +251,7 @@ body {
 }
 
 .logout-modal-content .confirm-btn {
-    padding: 12px 25px;
+    padding: 8px 15px;
     background-color: #e74c3c;
     color: white;
     border: none;
@@ -262,7 +262,7 @@ body {
 }
 
 .logout-modal-content .cancel-btn {
-    padding: 12px 25px;
+    padding: 8px 15px;
     background-color: #bdc3c7;
     color: #333;
     border: none;
@@ -277,4 +277,11 @@ body {
 
 .logout-modal-content .cancel-btn:hover {
     background-color: #95a5a6;
+}
+
+
+td.comments-column {
+    max-width: 250px; /* You can adjust this */
+    white-space: normal;
+    word-wrap: break-word;
 }

@@ -6,34 +6,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    // Validate the inputs
     if (empty($email) || empty($password)) {
         $_SESSION['error'] = "Please fill in both fields!";
         header("Location: login.php");
         exit();
     }
 
-    // Prepare SQL query to fetch user based on email
-    $stmt = $conn->prepare("SELECT CustomerID, Username, Password FROM customer WHERE EmailAddress = ?");
+    $stmt = $conn->prepare("SELECT CustomerID, Username, Password, Status FROM customer WHERE EmailAddress = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
 
-    // Check if the user exists
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
 
-        // Verify the password
-        if (password_verify($password, $user['Password'])) {
-            session_regenerate_id(true); // Prevent session fixation
+        // 🔒 Check if account is blocked
+        if ($user['Status'] === 'Blocked') {
+            $_SESSION['error'] = "Your account is blocked. Please contact admin.";
+            header("Location: login.php");
+            exit();
+        }
 
-            // Set session variables
-            $_SESSION['CustomerID'] = $user['CustomerID']; 
+        if (password_verify($password, $user['Password'])) {
+            session_regenerate_id(true);
+            $_SESSION['CustomerID'] = $user['CustomerID'];
             $_SESSION['Username'] = $user['Username'];
             $_SESSION['success'] = "Successfully logged in! Redirecting...";
-
-            // Delay redirection for 5 seconds
-            header("Refresh: 2; URL=./components/dashboard.php");
+            header("Refresh: 1; URL=./components/dashboard.php");
         } else {
             $_SESSION['error'] = "Invalid password!";
             header("Location: login.php");
@@ -61,7 +60,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
 <div class="form-container">
     <h2>Login</h2>
 
-    <!-- Alert messages -->
     <?php
     if (isset($_SESSION['error'])) {
         echo '<div class="alert alert-danger" role="alert">' . $_SESSION['error'] . '</div>';
@@ -82,41 +80,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
             <input type="password" class="form-control" placeholder="Password" name="password" id="password" required>
             <i class="fas fa-eye" id="togglePassword"></i>
         </div>
-        <button type="submit" name="login" class="btn btn-primary">Login</button>
+        <button type="submit" name="login" class="btn login-btn">Login</button>
     </form>
+
+    <!-- OR Divider -->
+    <!-- <div class="divider">
+        <span>Or Register</span>
+    </div> -->
+    <div class="text-center mt-2">
+    <p><a href="forgot_password.php" class="text-decoration-none text-danger">Forgot your password?</a></p>
+         <!-- <small class="text-muted">Please contact the admin to reset your account.</small> -->
+    </div>
+
+    <!-- Register Button Only -->
+    <div class="text-center mt-3">
+        <p>Don't have an account? <a href="register.php" class="text-decoration-none">Register</a></p>
+    </div>
+
 </div>
 
-<!-- JavaScript -->
-<script>
-// Toggle password visibility
-document.getElementById("togglePassword").addEventListener("click", function() {
-    const passwordField = document.getElementById("password");
-    const type = passwordField.type === "password" ? "text" : "password";
-    passwordField.type = type;
-    this.classList.toggle("fa-eye-slash");
-});
-
-// Client-side validation
-document.getElementById("loginForm").addEventListener("submit", function(event) {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-
-    if (!email || !password) {
-        event.preventDefault();
-        alert("Please fill in both fields!");
-    }
-});
-
-// Countdown for redirection
-// let seconds = 2;
-// const countdownEl = document.getElementById('countdown');
-// if (countdownEl) {
-//     const timer = setInterval(() => {
-//         countdownEl.textContent = `Redirecting in ${seconds} second${seconds !== 1 ? 's' : ''}...`;
-//         seconds--;
-//         if (seconds < 0) clearInterval(timer);
-//     }, 1000);
-// }
-</script>
+<script src="./js/login.js"></script>
 </body>
 </html>

@@ -4,7 +4,6 @@ require_once '../connection/conn.php'; // Include database connection
 
 // Ensure the user is logged in as an admin
 if (!isset($_SESSION['admin_id']) || empty($_SESSION['admin_id'])) {
-    $_SESSION['error_message'] = "Unauthorized access. Please log in.";
     header("Location: ../auth/login.php");
     exit;
 }
@@ -47,7 +46,9 @@ if (isset($_POST['delete_service'])) {
 
 <!DOCTYPE html>
 <html lang="en">
-<?php include 'includes/head.php'; ?>
+    <head>
+    <?php include 'includes/head.php'; ?>
+    </head>
 <body>
 <div class="wrapper">
 <?php include 'includes/sidebar.php'; ?>
@@ -62,7 +63,6 @@ if (isset($_POST['delete_service'])) {
                 <?php elseif (isset($_SESSION['error_message'])): ?>
                     <div class="alert alert-danger"><?php echo $_SESSION['error_message']; unset($_SESSION['error_message']); ?></div>
                 <?php endif; ?>
-
                 <div class="row">
                     <div class="col-12">
                         <div class="card">

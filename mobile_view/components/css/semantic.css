@@ -1,251 +1,259 @@
 /* === General Styles === */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f8f9fa;
-  }
-  
-  h2 {
-    font-size: 1.6rem;
-    margin-bottom: 1rem;
-    color: #343a40;
-  }
-  
-  /* === Section Styling === */
-  section {
-    background-color: #ffffff;
-    padding: 1rem;
-    border-radius: 0.5rem;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    margin-bottom: 2rem;
-  }
-  
-   /* Card Styling */
-   .card {
-    border: 1px solid #ddd;
-    margin-bottom: 20px;
-    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease;
-    border-radius: 10px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
 }
 
-.card-body {
-    padding: 20px;
-    background-color: #ffffff;
-    border-radius: 10px;
+h2 {
+  font-size: 1.6rem;
+  margin-bottom: 1rem;
+  color: #343a40;
 }
 
-.card-title {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #007bff;
+/* === Section Styling === */
+section {
+  background-color: #ffffff;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
 }
 
-.card-text {
-    font-size: 1rem;
+/* === Navbar Styling === */
+.navbar {
+  padding: 10px;
 }
 
-.card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+.navbar-brand img {
+  height: 45px;
+  width: auto;
+  object-fit: contain;
+  border-radius: 10px;
 }
 
-/* Badge Color */
-.badge-warning {
-    background-color: #ffc107;
+.navbar-nav {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  gap: 15px;
 }
 
-.badge-success {
-    background-color: #28a745;
+.navbar-nav .nav-link {
+  font-size: 1rem;
+  padding: 8px 12px;
+  color: #fff;
 }
 
-.badge-danger {
-    background-color: #dc3545;
+.navbar .btn-outline-light {
+  padding: 6px 12px;
+  font-size: 0.9rem;
+  white-space: nowrap;
 }
 
-.badge-secondary {
-    background-color: #6c757d;
+.dropdown-menu {
+  border-radius: 10px;
 }
 
-/* Animation for Cards */
-.fadeIn {
-    animation: fadeIn 1s ease-in-out;
+/* Notification and Profile Container */
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+/* === Modal Styling === */
+.modal-content {
+  border-radius: 10px;
 }
 
-/* Buttons */
-.btn-custom {
-    background-color: #007bff;
-    color: white;
-    border-radius: 25px;
-    padding: 10px 20px;
-    text-align: center;
-    transition: background-color 0.3s;
-}
-
-.btn-custom:hover {
-    background-color: #0056b3;
-}
-  .card {
-    border: none;
-    border-radius: 15px;
-    overflow: hidden;
-    margin-bottom: 20px;
-    transition: transform 0.2s;
+/* === Card Styling === */
+.card {
+  border: none;
+  border-radius: 15px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  transition: transform 0.2s;
 }
 
 .card:hover {
-    transform: scale(1.02);
+  transform: scale(1.02);
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
 }
 
 .card-img {
-    height: 180px;
-    object-fit: cover;
-    filter: brightness(0.85);
+  height: 180px;
+  object-fit: cover;
+  filter: brightness(0.85);
 }
 
 .card-body {
-    background-color: #ffffff;
-    padding: 1rem;
+  background-color: #ffffff;
+  padding: 1rem;
 }
 
 .card-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #0d6efd;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #0d6efd;
 }
 
 .card-text {
-    font-size: 0.95rem;
-    color: #495057;
+  font-size: 0.95rem;
+  color: #495057;
 }
 
-@media (max-width: 576px) {
-    h2 {
-        font-size: 1.3rem;
-    }
-
-    .card-img {
-        height: 150px;
-    }
+/* === Badges === */
+.badge-warning {
+  background-color: #ffc107;
 }
-  /* === Form Controls === */
-  input.form-control,
-  select.form-control {
-    font-size: 1rem;
-  }
-  
-  /* === Buttons === */
- /* Notification Button Styling */
-.navbar .btn-outline-light {
-    white-space: nowrap;
-    padding: 6px 12px;
-    font-size: 0.95rem;
-    line-height: 1.5;
-    margin-left: auto;
-  }
-  /* === Navbar Styling === */
 
-  .navbar {
-    padding: 10px;
-  }
-  
-  .navbar-brand {
-    font-size: 1.2rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  
-  .navbar-nav .nav-link {
-    font-size: 1rem;
-    padding: 10px 15px;
-  }
-  
-  /* === Modal Styling === */
-  .modal-content {
-    border-radius: 10px;
-  }
-  
-  /* === Profile Image Preview (if used later) === */
-  .profile-preview {
-    max-width: 120px;
-    height: auto;
-    display: block;
-    margin-bottom: 1rem;
-    border-radius: 50%;
-  }
-  
-  /* === Responsive Adjustments (Tablet & Mobile) === */
-  @media (max-width: 992px) {
-    .navbar-brand {
-      text-align: center;
-      font-size: 1rem;
-      width: 100%;
-      white-space: normal;
-    }
-  
-    .navbar-nav {
-      text-align: center;
-      padding-top: 10px;
-    }
-  
-    .nav-link {
-      font-size: 0.9rem;
-      padding: 10px 0;
-    }
-  
-    .navbar .btn {
-      width: 100%;
-      margin-top: 10px;
-    }
-  }
-  
-  /* === Mobile Specific (XS devices) === */
-  @media (max-width: 576px) {
-    h2 {
-      font-size: 1.3rem;
-    }
-  
-    .btn {
-      font-size: 1rem;
-    }
-  
-    input.form-control,
-    select.form-control {
-      font-size: 0.95rem;
-    }
-  
-    section {
-      padding: 0.75rem;
-    }
-  }
-  
-  /* Responsive Adjustment for Mobile */
-@media (max-width: 992px) {
-    .navbar .btn-outline-light {
-      width: 100%;
-      margin-top: 10px;
-      text-align: center;
-    }
-  }
+.badge-success {
+  background-color: #28a745;
+}
 
+.badge-danger {
+  background-color: #dc3545;
+}
 
-  .fadeIn {
-    animation: fadeIn 0.5s ease-in-out;
+.badge-secondary {
+  background-color: #6c757d;
+}
+
+/* === Buttons === */
+.btn-custom {
+  background-color: #007bff;
+  color: white;
+  border-radius: 25px;
+  padding: 10px 20px;
+  text-align: center;
+  transition: background-color 0.3s;
+}
+
+.btn-custom:hover {
+  background-color: #0056b3;
+}
+
+/* === Form Controls === */
+input.form-control,
+select.form-control {
+  font-size: 1rem;
+}
+
+/* === Animation for Cards === */
+.fadeIn {
+  animation: fadeIn 1s ease-in-out;
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* === Profile Image Preview === */
+.profile-preview {
+  max-width: 120px;
+  height: auto;
+  display: block;
+  margin-bottom: 1rem;
+  border-radius: 50%;
+}
+
+/* === Responsive Adjustments === */
+@media (max-width: 992px) {
+  .navbar-nav {
+    gap: 12px;
+    align-items:self-end;
+    flex-direction: row;
+  }
+
+  .nav-link {
+    font-size: 0.9rem;
+  }
+
+  .navbar .btn-outline-light {
+    padding: 5px 10px;
+    font-size: 0.85rem;
+  }
+
+  .navbar-actions {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar-nav {
+    flex-wrap: wrap;
+    justify-content: auto;
+  }
+
+  .navbar-actions {
+    order: 1;
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 576px) {
+  h2 {
+    font-size: 1.3rem;
+  }
+
+  .btn {
+    font-size: 1rem;
+  }
+
+  input.form-control,
+  select.form-control {
+    font-size: 0.95rem;
+  }
+
+  section {
+    padding: 0.75rem;
+  }
+
+  .modal-dialog {
+    margin: 1rem;
+  }
+
+  .card-img {
+    height: 150px;
+  }
+
+  .navbar-nav {
+    gap: 8px;
+  }
+
+  .navbar .btn-outline-light {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+  }
+
+  .navbar-actions {
+    gap: 6px;
+  }
+
+  .badge {
+    font-size: 0.6rem;
+    padding: 0.2em 0.4em;
+  }
+}
+
+@media (max-width: 400px) {
+  .navbar-nav {
+    justify-content: space-between;
+  }
+
+  .navbar-actions {
+    margin-left: 0;
+  }
+
+  .navbar .btn-outline-light {
+    padding: 3px 6px;
+    font-size: 0.75rem;
+  }
 }

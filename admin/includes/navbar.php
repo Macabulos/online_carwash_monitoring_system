@@ -3,31 +3,24 @@
    <a class="sidebar-toggle d-flex">
       <i class="hamburger align-self-center"></i>
    </a>
-   <form method="POST" action="" class="form-inline d-none d-sm-inline-block">
-      <div class="input-group input-group-navbar">
-         <input type="text" class="form-control" placeholder="Search Status…" aria-label="Search Status" name="track">
-         <div class="input-group-append">
-            <button class="btn" type="submit">
-               <i class="align-middle" data-feather="search"></i>
-            </button>
-         </div>
-      </div>
-   </form>
-   <div class="navbar-collapse collapse">
-      <ul class="navbar-nav navbar-align">
-         <li class="nav-item dropdown">
-            <a class="nav-icon dropdown-toggle d-inline-block d-sm-none" href="#" data-bs-toggle="dropdown">
-               <i class="align-middle" data-feather="settings"></i>
-            </a>
-            <a class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#" data-bs-toggle="dropdown">
-               <span class="text-dark">Hi, <?php echo $_SESSION["email"]; ?></span>
-            </a>
-            <div class="dropdown-menu dropdown-menu-end">
-               <a class="dropdown-item" href="#" id="logout-btn">
-                  <i class='bx bx-log-out'></i> Log out
-               </a>
-            </div>
+
+   <div class="navbar-collapse collapse justify-content-end">
+      <ul class="navbar-nav navbar-align d-flex align-items-center">
+
+         <!-- Display Email -->
+         <li class="nav-item me-3">
+            <span class="nav-link text-dark">
+               Hi, <?php echo $_SESSION["email"]; ?>
+            </span>
          </li>
+
+         <!-- Logout Button -->
+         <li class="nav-item">
+            <a href="#" class="btn btn-outline-secondary" id="logout-btn">
+               <i class='bx bx-log-out'></i> Log out
+            </a>
+         </li>
+
       </ul>
    </div>
 </nav>
@@ -35,7 +28,7 @@
 <!-- LOGOUT MODAL -->
 <div id="logoutModal" class="logout-modal">
    <div class="logout-modal-content">
-      <span class="close" id="close-logout-modal">&times;</span>
+      
       <h2>Logout Confirmation</h2>
       <p>Are you sure you want to log out?</p>
       <button class="confirm-btn" id="confirm-logout">Yes</button>
@@ -43,21 +36,18 @@
    </div>
 </div>
 
-
-
 <!-- SCRIPT -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const logoutBtn = document.getElementById('logout-btn');
     const logoutModal = document.getElementById('logoutModal');
-    const closeModalBtn = document.getElementById('close-logout-modal');
+    // const closeModalBtn = document.getElementById('close-logout-modal');
     const confirmLogoutBtn = document.getElementById('confirm-logout');
     const cancelLogoutBtn = document.getElementById('cancel-logout');
 
     // Open modal on logout click
     logoutBtn.addEventListener('click', function (event) {
         event.preventDefault();
-        event.stopPropagation(); // Prevent dropdown from closing
         logoutModal.style.display = 'block';
     });
 
@@ -66,9 +56,9 @@ document.addEventListener('DOMContentLoaded', function () {
         logoutModal.style.display = 'none';
     });
 
-    closeModalBtn.addEventListener('click', () => {
-        logoutModal.style.display = 'none';
-    });
+    // closeModalBtn.addEventListener('click', () => {
+    //     logoutModal.style.display = 'none';
+    // });
 
     // Confirm logout
     confirmLogoutBtn.addEventListener('click', () => {
@@ -103,7 +93,3 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
-
-<!-- Required JS -->
-<!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> -->

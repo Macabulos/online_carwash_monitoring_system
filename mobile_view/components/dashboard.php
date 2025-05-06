@@ -1,6 +1,12 @@
 <?php 
-session_start();
+require_once './image.php';
+?>
+
+<?php 
+// session_start();
 include '../../connection/conn.php';
+require_once '../../admin/includes/reference.php';
+include './notification.php'; // or wherever you placed the fixed backend code
 
 if (!isset($_SESSION['CustomerID'])) {
     header("Location: login.php");
@@ -122,7 +128,7 @@ if (!$result) {
     </div>
 </section>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const alertMessage = document.getElementById('alert-message');

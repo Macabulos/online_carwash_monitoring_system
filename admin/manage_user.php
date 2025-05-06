@@ -9,39 +9,27 @@ if (!isset($_SESSION['admin_id']) || empty($_SESSION['admin_id'])) {
     exit;
 }
 
-// Handle delete request
-if (isset($_POST['delete_user'])) {
+// Handle block user request
+if (isset($_POST['block_user'])) {
     $customer_id = $_POST['customer_id'];
-    $delete_query = "DELETE FROM customer WHERE CustomerID = ?";
-    $stmt = $conn->prepare($delete_query);
+    $stmt = $conn->prepare("UPDATE customer SET Status = 'Blocked' WHERE CustomerID = ?");
     $stmt->bind_param("i", $customer_id);
-
-    if ($stmt->execute()) {
-        $_SESSION['success_message'] = "Customer deleted successfully!";
-    } else {
-        $_SESSION['error_message'] = "Error deleting customer.";
-    }
+    $_SESSION['success_message'] = $stmt->execute() ? "Customer account blocked." : "Failed to block the customer.";
     header("Location: manage_user.php");
     exit();
 }
 
-// Fetch all customers
-// Pagination setup
-$limit = 10; // number of users per page
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$page = max($page, 1);
-$offset = ($page - 1) * $limit;
+// Handle unblock user request
+if (isset($_POST['unblock_user'])) {
+    $customer_id = $_POST['customer_id'];
+    $stmt = $conn->prepare("UPDATE customer SET Status = 'Active' WHERE CustomerID = ?");
+    $stmt->bind_param("i", $customer_id);
+    $_SESSION['success_message'] = $stmt->execute() ? "Customer account unblocked." : "Failed to unblock the customer.";
+    header("Location: manage_user.php");
+    exit();
+}
 
-// Count total users
-$countSql = "SELECT COUNT(*) AS total FROM customer";
-$countResult = mysqli_query($conn, $countSql);
-$totalUsers = mysqli_fetch_assoc($countResult)['total'];
-$totalPages = ceil($totalUsers / $limit);
-
-// Fetch users with LIMIT
-$sql = "SELECT * FROM customer ORDER BY CustomerID ASC LIMIT $limit OFFSET $offset";
-$result = mysqli_query($conn, $sql);
-
+$result = $conn->query("SELECT * FROM customer ORDER BY CustomerID ASC");
 ?>
 
 <!DOCTYPE html>
@@ -57,12 +45,12 @@ $result = mysqli_query($conn, $sql);
                 <h1 class="h3 mb-3">Manage Users</h1>
 
                 <?php if (isset($_SESSION['success_message'])): ?>
-                    <div class="alert alert-success alert-dismissible fade show" role="alert" id="success-alert">
-                        <?php echo $_SESSION['success_message']; unset($_SESSION['success_message']); ?>
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <?= $_SESSION['success_message']; unset($_SESSION['success_message']); ?>
                     </div>
                 <?php elseif (isset($_SESSION['error_message'])): ?>
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert" id="error-alert">
-                        <?php echo $_SESSION['error_message']; unset($_SESSION['error_message']); ?>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <?= $_SESSION['error_message']; unset($_SESSION['error_message']); ?>
                     </div>
                 <?php endif; ?>
 
@@ -76,52 +64,36 @@ $result = mysqli_query($conn, $sql);
                                             <th>ID</th>
                                             <th>Username</th>
                                             <th>Email</th>
-                                            <th>Age</th>
+                                            <th>Status</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php while ($row = mysqli_fetch_assoc($result)): ?>
+                                        <?php while ($row = $result->fetch_assoc()): ?>
                                             <tr>
-                                                <td><?php echo $row['CustomerID']; ?></td>
-                                                <td><?php echo $row['Username']; ?></td>
-                                                <td><?php echo $row['EmailAddress']; ?></td>
-                                                <td><?php echo $row['Age']; ?></td>
+                                                <td><?= $row['CustomerID']; ?></td>
+                                                <td><?= $row['Username']; ?></td>
+                                                <td><?= $row['EmailAddress']; ?></td>
+                                                <td><?= $row['Status']; ?></td>
                                                 <td>
-                                                    <button type="button"
-                                                            class="btn btn-danger btn-sm"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#deleteModal"
-                                                            data-id="<?php echo $row['CustomerID']; ?>">
-                                                        <i class="fa fa-trash"></i> Delete
-                                                    </button>
+                                                    <!-- Block/Unblock Button -->
+                                                    <form method="POST" style="display: inline;">
+                                                        <input type="hidden" name="customer_id" value="<?= $row['CustomerID']; ?>">
+                                                        <?php if ($row['Status'] === 'Blocked'): ?>
+                                                            <button type="submit" name="unblock_user" class="btn btn-success btn-sm">
+                                                                <i class="fa fa-unlock"></i> Unblock
+                                                            </button>
+                                                        <?php else: ?>
+                                                            <button type="submit" name="block_user" class="btn btn-warning btn-sm">
+                                                                <i class="fa fa-ban"></i> Block
+                                                            </button>
+                                                        <?php endif; ?>
+                                                    </form>
                                                 </td>
                                             </tr>
                                         <?php endwhile; ?>
                                     </tbody>
                                 </table>
-                                <!-- Pagination Controls -->
-                                <nav>
-                                <ul class="pagination justify-content-end mt-3">
-                                        <?php if ($page > 1): ?>
-                                            <li class="page-item">
-                                                <a class="page-link" href="?page=<?php echo $page - 1; ?>">Previous</a>
-                                            </li>
-                                        <?php endif; ?>
-
-                                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                                            <li class="page-item <?php echo ($i == $page) ? 'active' : ''; ?>">
-                                                <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
-                                            </li>
-                                        <?php endfor; ?>
-
-                                        <?php if ($page < $totalPages): ?>
-                                            <li class="page-item">
-                                                <a class="page-link" href="?page=<?php echo $page + 1; ?>">Next</a>
-                                            </li>
-                                        <?php endif; ?>
-                                    </ul>
-                                </nav>
                             </div>
                         </div>
                     </div>
@@ -129,50 +101,24 @@ $result = mysqli_query($conn, $sql);
             </div>
         </main>
 
-        <!-- Delete Confirmation Modal -->
-        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <form method="POST">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="deleteModalLabel">Delete User</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            Are you sure you want to delete this user?
-                            <input type="hidden" name="customer_id" id="deleteCustomerId">
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" name="delete_user" class="btn btn-danger">Delete</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
         <?php include 'includes/footer.php'; ?>
     </div>
 </div>
 
 <?php include 'includes/scripts.php'; ?>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     $(document).ready(function () {
         $('#userTable').DataTable();
 
-    });
-    setTimeout(() => {
-    const alert = document.querySelector('.alert');
-    if (alert) {
-      const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
-      bsAlert.close();
-    }
-  }, 3000);
-    // Populate delete modal with user ID
-    $('#deleteModal').on('show.bs.modal', function (event) {
-        const button = $(event.relatedTarget);
-        const customerId = button.data('id');
-        $(this).find('#deleteCustomerId').val(customerId);
+        setTimeout(() => {
+            const alert = document.querySelector('.alert');
+            if (alert) {
+                const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
+                bsAlert.close();
+            }
+        }, 3000);
     });
 </script>
 </body>
