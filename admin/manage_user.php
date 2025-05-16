@@ -28,6 +28,16 @@ if (isset($_POST['unblock_user'])) {
     header("Location: manage_user.php");
     exit();
 }
+// Handle delete user request
+if (isset($_POST['delete_user'])) {
+    $customer_id = $_POST['customer_id'];
+    $stmt = $conn->prepare("DELETE FROM customer WHERE CustomerID = ?");
+    $stmt->bind_param("i", $customer_id);
+    $_SESSION['success_message'] = $stmt->execute() ? "Customer account deleted." : "Failed to delete the customer.";
+    header("Location: manage_user.php");
+    exit();
+}
+
 
 $result = $conn->query("SELECT * FROM customer ORDER BY CustomerID ASC");
 ?>
@@ -77,7 +87,7 @@ $result = $conn->query("SELECT * FROM customer ORDER BY CustomerID ASC");
                                                 <td><?= $row['Status']; ?></td>
                                                 <td>
                                                     <!-- Block/Unblock Button -->
-                                                    <form method="POST" style="display: inline;">
+                                                    <form method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to perform this action?');">
                                                         <input type="hidden" name="customer_id" value="<?= $row['CustomerID']; ?>">
                                                         <?php if ($row['Status'] === 'Blocked'): ?>
                                                             <button type="submit" name="unblock_user" class="btn btn-success btn-sm">
@@ -88,7 +98,11 @@ $result = $conn->query("SELECT * FROM customer ORDER BY CustomerID ASC");
                                                                 <i class="fa fa-ban"></i> Block
                                                             </button>
                                                         <?php endif; ?>
+                                                        <button type="submit" name="delete_user" class="btn btn-danger btn-sm">
+                                                            <i class="fa fa-trash"></i> Delete
+                                                        </button>
                                                     </form>
+
                                                 </td>
                                             </tr>
                                         <?php endwhile; ?>
@@ -107,11 +121,15 @@ $result = $conn->query("SELECT * FROM customer ORDER BY CustomerID ASC");
 
 <?php include 'includes/scripts.php'; ?>
 
+
+</body>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     $(document).ready(function () {
         $('#userTable').DataTable();
 
+        // Auto dismiss alert after 3 seconds
         setTimeout(() => {
             const alert = document.querySelector('.alert');
             if (alert) {
@@ -121,5 +139,5 @@ $result = $conn->query("SELECT * FROM customer ORDER BY CustomerID ASC");
         }, 3000);
     });
 </script>
-</body>
+
 </html>

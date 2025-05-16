@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 05, 2025 at 01:54 PM
+-- Generation Time: May 14, 2025 at 01:10 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -52,8 +52,52 @@ CREATE TABLE `bookings` (
   `CustomerID` int(11) NOT NULL,
   `ServiceID` int(11) NOT NULL,
   `BookingDate` datetime DEFAULT current_timestamp(),
-  `StatusID` int(11) DEFAULT 1
+  `StatusID` int(11) DEFAULT 1,
+  `NumberOfCars` int(11) DEFAULT 1,
+  `CarType` varchar(50) DEFAULT NULL,
+  `CarQuantity` int(11) NOT NULL DEFAULT 1,
+  `CarTypeID` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `bookings`
+--
+
+INSERT INTO `bookings` (`BookingID`, `CustomerID`, `ServiceID`, `BookingDate`, `StatusID`, `NumberOfCars`, `CarType`, `CarQuantity`, `CarTypeID`) VALUES
+(42, 21, 8, '2025-05-06 14:00:00', 1, 1, NULL, 1, 0),
+(43, 21, 1, '2025-05-06 13:00:00', 1, 1, NULL, 1, 0),
+(45, 21, 10, '2025-05-06 10:00:00', 1, 1, NULL, 1, 0),
+(47, 14, 1, '2025-05-08 11:00:00', 1, 1, NULL, 2, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `car_types`
+--
+
+CREATE TABLE `car_types` (
+  `CarTypeID` int(11) NOT NULL,
+  `TypeName` varchar(50) NOT NULL,
+  `Description` varchar(255) DEFAULT NULL,
+  `BasePrice` decimal(10,2) NOT NULL,
+  `EstimatedDuration` int(11) NOT NULL COMMENT 'Duration in minutes'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `car_types`
+--
+
+INSERT INTO `car_types` (`CarTypeID`, `TypeName`, `Description`, `BasePrice`, `EstimatedDuration`) VALUES
+(1, 'Small Car', 'Compact cars, hatchbacks, and subcompacts (e.g., Honda Civic, Toyota Corolla)', 25.00, 30),
+(2, 'Medium Sedan', 'Mid-size sedans and small SUVs (e.g., Toyota Camry, Honda CR-V)', 35.00, 45),
+(3, 'Large SUV', 'Full-size SUVs and trucks (e.g., Ford Explorer, Chevy Tahoe)', 45.00, 60),
+(4, 'Luxury Vehicle', 'High-end vehicles requiring special care (e.g., Mercedes, BMW)', 60.00, 75),
+(5, 'Truck/Van', 'Pickup trucks and large vans (e.g., Ford F-150, Chevy Express)', 50.00, 60),
+(6, 'Sedan', 'Standard 4-door car', 200.00, 45),
+(7, 'SUV', 'Sports Utility Vehicle', 300.00, 60),
+(8, 'Pickup', 'Light-duty truck', 350.00, 65),
+(9, 'Van', 'Family or cargo van', 320.00, 55),
+(10, 'Motorcycle', 'Two-wheeled motor vehicle', 150.00, 30);
 
 -- --------------------------------------------------------
 
@@ -83,11 +127,8 @@ CREATE TABLE `customer` (
 --
 
 INSERT INTO `customer` (`CustomerID`, `Username`, `EmailAddress`, `Age`, `Password`, `ConfirmPassword`, `ProfilePicture`, `ServiceID`, `BookingDate`, `StatusID`, `is_google_user`, `Status`, `otp_code`, `otp_expires_at`) VALUES
-(14, 'jake', 'jake@gmail.com', 24, '$2y$10$r7GSgBQPup9aCDa4XFxHJ.vdUrkak2JoHUIGNj9iLCQTvsQcMsSTq', '', '../uploads/ChatGPT Image Apr 7, 2025, 10_12_33 AM.png', NULL, NULL, 1, 0, 'Active', '602808', '2025-05-05 10:58:41'),
-(15, 'john', 'hatdog@gmail.com', 21, '$2y$10$kEWcs3FsQ1ORAuxBvBu49.0vp5xPkk0JHu/sV7UDD5Ps/cWUpxMMa', '', NULL, NULL, NULL, 1, 0, 'Active', NULL, NULL),
-(17, 'hala', 'vayoh90813@idoidraw.com', 21, '$2y$10$EEanRBjomKma9vayWD6ppufn99MtUXsroCg.VuliQuO3LnEGC3bHS', '', NULL, NULL, NULL, 1, 0, 'Active', NULL, NULL),
-(18, 'what', 'pagorij549@harinv.com', 21, '$2y$10$HS0eOb9BfMKwr6I8SYcYaur3elFmVxQaRYi6.aO9I2MfZTNyo.0b.', '', NULL, NULL, NULL, 1, 0, 'Active', '652398', '2025-05-05 10:55:52'),
-(19, 'jebini', 'jebini7709@harinv.com', 21, '$2y$10$kP7/Kycz5fVLE.NJ7HmCTeBnHrhz2V6tbPkCjfXkqVpAREybS6CQi', '', NULL, NULL, NULL, 1, 0, 'Active', '106037', '2025-05-05 11:19:36');
+(14, 'jake', 'jake@gmail.com', 24, '$2y$10$r7GSgBQPup9aCDa4XFxHJ.vdUrkak2JoHUIGNj9iLCQTvsQcMsSTq', '', '../uploads/ChatGPT Image Apr 7, 2025, 10_12_33 AM.png', NULL, NULL, 1, 0, 'Active', '129308', '2025-05-06 01:08:40'),
+(21, 'john', 'foriri7051@idoidraw.com', 21, '$2y$10$48FLxDMGpIAfkNfeYJ90OuR.wg2C2ojOyoBs9xXw9vRGc6Tgt6xk6', '', '../uploads/ChatGPT Image Apr 7, 2025, 09_53_23 AM.png', NULL, NULL, 1, 0, 'Active', '757625', '2025-05-06 08:15:53');
 
 -- --------------------------------------------------------
 
@@ -109,7 +150,7 @@ CREATE TABLE `feedback` (
 --
 
 INSERT INTO `feedback` (`FeedbackID`, `CustomerID`, `ServiceID`, `Comments`, `Ratings`, `Response`) VALUES
-(10, 14, 1, 'love it', 5, NULL);
+(11, 21, 1, 'loveit', 5, NULL);
 
 -- --------------------------------------------------------
 
@@ -134,19 +175,32 @@ CREATE TABLE `service` (
   `ServiceID` int(11) NOT NULL,
   `ServiceName` varchar(100) NOT NULL,
   `Description` text DEFAULT NULL,
-  `ImagePath` varchar(255) DEFAULT NULL
+  `ImagePath` varchar(255) DEFAULT NULL,
+  `BasePrice` decimal(10,2) NOT NULL DEFAULT 0.00
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `service`
 --
 
-INSERT INTO `service` (`ServiceID`, `ServiceName`, `Description`, `ImagePath`) VALUES
-(1, 'Carwash ', 'Here’s what you can expect from our complete car wash package:\r\n\r\n🌊 Pre-Wash\r\nA thorough rinse to remove loose dirt, debris, and surface contaminants, setting the stage for a spotless clean.\r\n\r\n🧼 Soap & Detailing\r\nWe use special car wash soap to break down grime and dirt without harming your paint. Our experts gently scrub your car’s body, windows, and wheels using soft brushes or microfiber cloths for a deep clean.\r\n\r\n🚗 Wheel & Tire Cleaning\r\nWe give special attention to your wheels and tires, removing brake dust and road grime, leaving them looking sleek and shiny.\r\n\r\n💦 Rinse & Dry\r\nA final rinse to wash away soap followed by a drying process using microfiber towels or air dryers, ensuring a streak-free and water spot-free finish.', '1744101442_carwash+service-396w.webp'),
-(8, 'Car Detailing', 'Hand wash to remove dirt, grime, and other contaminants from the surface.\r\nClay bar treatment to remove embedded contaminants that washing cannot.\r\nPolishing to restore shine, remove swirl marks, and correct imperfections in the paint.\r\nWaxing to protect the paint and provide a long-lasting glossy finish.\r\nWheel cleaning and tire dressing to ensure rims are spotless and tires have a fresh, dark appearance.\r\nWindow cleaning to remove streaks and enhance visibility.', '1744273334_cardetailing3-7b88-8696.webp'),
-(9, 'Quick Exterior', 'Try Our Quick Exterior\r\nInvolves cleaning and restoring or exceeding the original condition of the surface of the car\'s finish (usually a paint with a glossy finish), chrome trim and windows as well as other visible components on the exterior of the vehicle. A wide array of products and techiniques are used to do this based on the surface type and surface condition.\r\n\r\nDuration:4-8 hours depending on the condition of the car\'s paint.', '1745377305_08a06805f296462a8e0942ae484a5fa8.jpg'),
-(10, 'Quick Interior Detailing', 'Try Our Quick Interior\r\nInvolves deep cleaning of the whole interior cabin. Autmobile interiors of the last 50 years have variety of materials used inside the cabin such as synthetic carpet upholstery, vinyl, leather, various natural fibers, carbon fiber composites, platics and others. Different techniques and products are used to address cleaning these. Vacuuming is the standard, liquid and foam chemicals, as well us brushes may be used to removes stains on upholstery. Some nonporous surfaces may also be polished.\r\n\r\nDuration: 4-8 hours depending on the gravity of the dirt', '1745377358_Spritz-Interior-Detailer-UV-Protection-Rectangle.webp'),
-(11, 'Signature Engine', 'Try Our Signature Engine\r\nThorough cleaning of the engine bay and under the hood. Application of degreasers, metal polish, chrome polish might be needed to remove the dust, oil deposits and other contaminants in the engine bay. Chemicals will be applied to the plastic and rubber parts to restore it to its close to brand new look.\r\n\r\nDuration: 4-8 hours', '1745377435_lycoming-940.png');
+INSERT INTO `service` (`ServiceID`, `ServiceName`, `Description`, `ImagePath`, `BasePrice`) VALUES
+(1, 'Carwash ', 'Here’s what you can expect from our complete car wash package:\r\n\r\n🌊 Pre-Wash\r\nA thorough rinse to remove loose dirt, debris, and surface contaminants, setting the stage for a spotless clean.\r\n\r\n🧼 Soap & Detailing\r\nWe use special car wash soap to break down grime and dirt without harming your paint. Our experts gently scrub your car’s body, windows, and wheels using soft brushes or microfiber cloths for a deep clean.\r\n\r\n🚗 Wheel & Tire Cleaning\r\nWe give special attention to your wheels and tires, removing brake dust and road grime, leaving them looking sleek and shiny.\r\n\r\n💦 Rinse & Dry\r\nA final rinse to wash away soap followed by a drying process using microfiber towels or air dryers, ensuring a streak-free and water spot-free finish.', '1744101442_carwash+service-396w.webp', 25.00),
+(8, 'Car Detailing', 'Hand wash to remove dirt, grime, and other contaminants from the surface.\r\nClay bar treatment to remove embedded contaminants that washing cannot.\r\nPolishing to restore shine, remove swirl marks, and correct imperfections in the paint.\r\nWaxing to protect the paint and provide a long-lasting glossy finish.\r\nWheel cleaning and tire dressing to ensure rims are spotless and tires have a fresh, dark appearance.\r\nWindow cleaning to remove streaks and enhance visibility.', '1744273334_cardetailing3-7b88-8696.webp', 100.00),
+(9, 'Quick Exterior', 'Try Our Quick Exterior\r\nInvolves cleaning and restoring or exceeding the original condition of the surface of the car\'s finish (usually a paint with a glossy finish), chrome trim and windows as well as other visible components on the exterior of the vehicle. A wide array of products and techiniques are used to do this based on the surface type and surface condition.\r\n\r\nDuration:4-8 hours depending on the condition of the car\'s paint.', '1745377305_08a06805f296462a8e0942ae484a5fa8.jpg', 40.00),
+(10, 'Quick Interior Detailing', 'Try Our Quick Interior\r\nInvolves deep cleaning of the whole interior cabin. Autmobile interiors of the last 50 years have variety of materials used inside the cabin such as synthetic carpet upholstery, vinyl, leather, various natural fibers, carbon fiber composites, platics and others. Different techniques and products are used to address cleaning these. Vacuuming is the standard, liquid and foam chemicals, as well us brushes may be used to removes stains on upholstery. Some nonporous surfaces may also be polished.\r\n\r\nDuration: 4-8 hours depending on the gravity of the dirt', '1745377358_Spritz-Interior-Detailer-UV-Protection-Rectangle.webp', 50.00),
+(11, 'Signature Engine', 'Try Our Signature Engine\r\nThorough cleaning of the engine bay and under the hood. Application of degreasers, metal polish, chrome polish might be needed to remove the dust, oil deposits and other contaminants in the engine bay. Chemicals will be applied to the plastic and rubber parts to restore it to its close to brand new look.\r\n\r\nDuration: 4-8 hours', '1745377435_lycoming-940.png', 75.00);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `service_car_types`
+--
+
+CREATE TABLE `service_car_types` (
+  `ServiceID` int(11) NOT NULL,
+  `CarTypeID` int(11) NOT NULL,
+  `AdditionalPrice` decimal(10,2) NOT NULL DEFAULT 0.00
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -225,6 +279,12 @@ ALTER TABLE `bookings`
   ADD KEY `fk_bookings_customer` (`CustomerID`);
 
 --
+-- Indexes for table `car_types`
+--
+ALTER TABLE `car_types`
+  ADD PRIMARY KEY (`CarTypeID`);
+
+--
 -- Indexes for table `customer`
 --
 ALTER TABLE `customer`
@@ -251,6 +311,13 @@ ALTER TABLE `report`
 --
 ALTER TABLE `service`
   ADD PRIMARY KEY (`ServiceID`);
+
+--
+-- Indexes for table `service_car_types`
+--
+ALTER TABLE `service_car_types`
+  ADD PRIMARY KEY (`ServiceID`,`CarTypeID`),
+  ADD KEY `CarTypeID` (`CarTypeID`);
 
 --
 -- Indexes for table `status`
@@ -284,19 +351,25 @@ ALTER TABLE `admin`
 -- AUTO_INCREMENT for table `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `BookingID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
+  MODIFY `BookingID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
+
+--
+-- AUTO_INCREMENT for table `car_types`
+--
+ALTER TABLE `car_types`
+  MODIFY `CarTypeID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `customer`
 --
 ALTER TABLE `customer`
-  MODIFY `CustomerID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `CustomerID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `feedback`
 --
 ALTER TABLE `feedback`
-  MODIFY `FeedbackID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `FeedbackID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `report`
@@ -308,7 +381,7 @@ ALTER TABLE `report`
 -- AUTO_INCREMENT for table `service`
 --
 ALTER TABLE `service`
-  MODIFY `ServiceID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `ServiceID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `status`
@@ -337,6 +410,13 @@ ALTER TABLE `bookings`
 --
 ALTER TABLE `feedback`
   ADD CONSTRAINT `fk_feedback_customer` FOREIGN KEY (`CustomerID`) REFERENCES `customer` (`CustomerID`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `service_car_types`
+--
+ALTER TABLE `service_car_types`
+  ADD CONSTRAINT `service_car_types_ibfk_1` FOREIGN KEY (`ServiceID`) REFERENCES `service` (`ServiceID`),
+  ADD CONSTRAINT `service_car_types_ibfk_2` FOREIGN KEY (`CarTypeID`) REFERENCES `car_types` (`CarTypeID`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

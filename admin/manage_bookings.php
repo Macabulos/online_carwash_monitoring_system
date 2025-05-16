@@ -47,16 +47,28 @@ $offset = ($page - 1) * $limit;
 $totalBookings = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM bookings"))['total'];
 $totalPages = ceil($totalBookings / $limit);
 
-// Main query
+// Main query with price calculation
 $query = "
-    SELECT b.BookingID, b.BookingDate, b.StatusID, c.Username AS CustomerName, s.ServiceName, st.StatusName
+    SELECT 
+        b.BookingID, 
+        b.BookingDate, 
+        b.StatusID, 
+        c.Username AS CustomerName, 
+        s.ServiceName, 
+        st.StatusName,
+        ct.TypeName AS CarType, 
+        b.CarQuantity,
+        ct.BasePrice,
+        (b.CarQuantity * ct.BasePrice) AS TotalPrice
     FROM bookings b
     JOIN customer c ON b.CustomerID = c.CustomerID
     JOIN service s ON b.ServiceID = s.ServiceID
     JOIN status st ON b.StatusID = st.StatusID
+    LEFT JOIN car_types ct ON b.CarTypeID = ct.CarTypeID
     ORDER BY b.BookingDate DESC
     LIMIT $limit OFFSET $offset
 ";
+
 $result = mysqli_query($conn, $query);
 ?>
 
@@ -76,14 +88,15 @@ $result = mysqli_query($conn, $query);
                 <?php if (isset($_SESSION['success_message'])): ?>
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         <?= $_SESSION['success_message']; unset($_SESSION['success_message']); ?>
-                       
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 <?php elseif (isset($_SESSION['error_message'])): ?>
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         <?= $_SESSION['error_message']; unset($_SESSION['error_message']); ?>
-                       
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 <?php endif; ?>
+                
                 <div class="card">
                     <div class="card-body table-responsive">
                         <table class="table table-striped table-bordered">
@@ -93,6 +106,10 @@ $result = mysqli_query($conn, $query);
                                     <th>Booking ID</th>
                                     <th>Customer</th>
                                     <th>Service</th>
+                                    <th>Car Type</th>
+                                    <th>Quantity</th>
+                                    <th>Unit Price</th>
+                                    <th>Total Price</th>
                                     <th>Booking Date</th>
                                     <th>Status</th>
                                     <th>Action</th>
@@ -105,6 +122,10 @@ $result = mysqli_query($conn, $query);
                                         <td><?= $row['BookingID']; ?></td>
                                         <td><?= htmlspecialchars($row['CustomerName']); ?></td>
                                         <td><?= htmlspecialchars($row['ServiceName']); ?></td>
+                                        <td><?= htmlspecialchars($row['CarType'] ?? 'N/A'); ?></td>
+                                        <td><?= $row['CarQuantity']; ?></td>
+                                        <td>$<?= number_format($row['BasePrice'] ?? 0, 2); ?></td>
+                                        <td>$<?= number_format($row['TotalPrice'] ?? 0, 2); ?></td>
                                         <td><?= date('Y-m-d H:i', strtotime($row['BookingDate'])); ?></td>
                                         <td><?= htmlspecialchars($row['StatusName']); ?></td>
                                         <td>
@@ -138,7 +159,6 @@ $result = mysqli_query($conn, $query);
                                 </ul>
                             </nav>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -213,5 +233,6 @@ setTimeout(() => {
     }
 }, 5000);
 </script>
+
 </body>
 </html>

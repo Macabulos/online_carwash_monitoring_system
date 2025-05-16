@@ -13,16 +13,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
-
     if ($result->num_rows === 1) {
         $user = $result->fetch_assoc();
         $otp = rand(100000, 999999);
         $expiry = date("Y-m-d H:i:s", strtotime("+10 minutes"));
-
         $update = $conn->prepare("UPDATE customer SET otp_code = ?, otp_expires_at = ? WHERE CustomerID = ?");
         $update->bind_param("ssi", $otp, $expiry, $user['CustomerID']);
         $update->execute();
-
         $mail = new PHPMailer(true);
         try {
             $mail->isSMTP();
