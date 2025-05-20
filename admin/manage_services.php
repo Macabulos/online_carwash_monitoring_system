@@ -1,12 +1,13 @@
 <?php
 session_start();
-require_once '../connection/conn.php'; // Include database connection
+require_once '../connection/conn.php';
 
 // Ensure the user is logged in as an admin
 if (!isset($_SESSION['admin_id']) || empty($_SESSION['admin_id'])) {
     header("Location: ../auth/login.php");
     exit;
 }
+
 // Pagination setup
 $limit = 5; // services per page
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -21,16 +22,21 @@ $totalPages = ceil($totalRow['total'] / $limit);
 $sql = "SELECT * FROM service ORDER BY ServiceID ASC LIMIT $limit OFFSET $offset";
 $result = mysqli_query($conn, $sql);
 
-
-// Fetch all services
-$sql = "SELECT * FROM service ORDER BY ServiceID ASC";
-$result = mysqli_query($conn, $sql);
+// Fetch all car types for the car type associations
+$carTypes = mysqli_query($conn, "SELECT * FROM car_types");
 
 // Handle delete request
 if (isset($_POST['delete_service'])) {
     $service_id = $_POST['service_id'];
+    
+    // First delete any service_car_types associations
+    $delete_associations = "DELETE FROM service_car_types WHERE ServiceID = ?";
+    $stmt = $conn->prepare($delete_associations);
+    $stmt->bind_param("i", $service_id);
+    $stmt->execute();
+    
+    // Then delete the service
     $delete_query = "DELETE FROM service WHERE ServiceID = ?";
-
     $stmt = $conn->prepare($delete_query);
     $stmt->bind_param("i", $service_id);
 
@@ -42,16 +48,56 @@ if (isset($_POST['delete_service'])) {
     header("Location: manage_services.php");
     exit();
 }
+
+// Handle update of car type associations
+if (isset($_POST['update_car_types'])) {
+    $service_id = $_POST['service_id'];
+    
+    // First clear existing associations
+    $clear_query = "DELETE FROM service_car_types WHERE ServiceID = ?";
+    $stmt = $conn->prepare($clear_query);
+    $stmt->bind_param("i", $service_id);
+    $stmt->execute();
+    
+    // Add new associations if any were selected
+    if (isset($_POST['car_types'])) {
+        $insert_query = "INSERT INTO service_car_types (ServiceID, CarTypeID, AdditionalPrice) VALUES (?, ?, ?)";
+        $stmt = $conn->prepare($insert_query);
+        
+        foreach ($_POST['car_types'] as $carTypeID => $additionalPrice) {
+            $stmt->bind_param("iid", $service_id, $carTypeID, $additionalPrice);
+            $stmt->execute();
+        }
+    }
+    
+    $_SESSION['success_message'] = "Car type associations updated successfully!";
+    header("Location: manage_services.php");
+    exit();
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-    <head>
+<head>
     <?php include 'includes/head.php'; ?>
-    </head>
+    <style>
+        .car-type-card {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .car-type-card h5 {
+            margin-bottom: 15px;
+        }
+        .price-input {
+            max-width: 150px;
+        }
+    </style>
+</head>
 <body>
 <div class="wrapper">
-<?php include 'includes/sidebar.php'; ?>
+    <?php include 'includes/sidebar.php'; ?>
     <div class="main">
         <?php include 'includes/navbar.php'; ?>
         <main class="content">
@@ -78,6 +124,7 @@ if (isset($_POST['delete_service'])) {
                                             <th>Service ID</th>
                                             <th>Image</th>
                                             <th>Service Name</th>
+                                            <th>Base Price</th>
                                             <th>Description</th>
                                             <th>Actions</th>
                                         </tr>
@@ -88,13 +135,16 @@ if (isset($_POST['delete_service'])) {
                                             <td><?php echo $row['ServiceID']; ?></td>
                                             <td><img src="../uploads/services/<?php echo $row['ImagePath']; ?>" width="80"></td>
                                             <td><?php echo $row['ServiceName']; ?></td>
+                                            <td>₱<?php echo number_format($row['BasePrice'], 2); ?></td>
                                             <td title="<?php echo htmlspecialchars($row['Description']); ?>">
                                                 <?php echo strlen($row['Description']) > 50 ? substr($row['Description'], 0, 50) . '...' : $row['Description']; ?>
                                             </td>
-
                                             <td>
                                                 <button class="btn btn-warning btn-sm" onclick="editService(<?php echo $row['ServiceID']; ?>)" data-bs-toggle="modal" data-bs-target="#editServiceModal">
                                                     <i class="fa fa-edit"></i> Edit
+                                                </button>
+                                                <button class="btn btn-info btn-sm" onclick="manageCarTypes(<?php echo $row['ServiceID']; ?>)" data-bs-toggle="modal" data-bs-target="#carTypesModal">
+                                                    <i class="fa fa-car"></i> Car Types
                                                 </button>
                                                 <form action="manage_services.php" method="POST" style="display:inline;">
                                                     <input type="hidden" name="service_id" value="<?php echo $row['ServiceID']; ?>">
@@ -144,7 +194,7 @@ if (isset($_POST['delete_service'])) {
 <div class="modal fade" id="addServiceModal" tabindex="-1" aria-labelledby="addServiceModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <form action="save_service.php" method="POST" enctype="multipart/form-data"> <!-- FIXED HERE -->
+      <form action="save_service.php" method="POST" enctype="multipart/form-data">
         <div class="modal-header">
           <h5 class="modal-title" id="addServiceModalLabel">Add New Service</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -152,11 +202,15 @@ if (isset($_POST['delete_service'])) {
         <div class="modal-body">
           <div class="mb-3">
               <label for="serviceImage" class="form-label">Image</label>
-              <input type="file" class="form-control" name="service_image" id="serviceImage" accept="image/*">
+              <input type="file" class="form-control" name="service_image" id="serviceImage" accept="image/*" required>
           </div>
           <div class="mb-3">
               <label for="serviceName" class="form-label">Service Name</label>
               <input type="text" class="form-control" name="service_name" id="serviceName" required>
+          </div>
+          <div class="mb-3">
+              <label for="basePrice" class="form-label">Base Price</label>
+              <input type="number" class="form-control" name="base_price" id="basePrice" step="0.01" min="0" required>
           </div>
           <div class="mb-3">
               <label for="serviceDesc" class="form-label">Description</label>
@@ -186,24 +240,52 @@ if (isset($_POST['delete_service'])) {
   </div>
 </div>
 
+<!-- Car Types Modal -->
+<div class="modal fade" id="carTypesModal" tabindex="-1" aria-labelledby="carTypesModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form method="POST" action="manage_services.php">
+        <div class="modal-header">
+          <h5 class="modal-title" id="carTypesModalLabel">Manage Car Type Associations</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="carTypesData">
+          <!-- AJAX content will be loaded here -->
+        </div>
+        <div class="modal-footer">
+          <input type="hidden" name="service_id" id="serviceIdInput">
+          <button type="submit" name="update_car_types" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <?php include 'includes/scripts.php'; ?>
 <script>
-
+// Auto-close alerts
 setTimeout(() => {
     const alert = document.querySelector('.alert');
     if (alert) {
       const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
       bsAlert.close();
     }
-  }, 3000);
+}, 3000);
 
+// Edit service function
 function editService(serviceID) {
     fetch('edit_service.php?id=' + serviceID)
         .then(response => response.text())
         .then(data => document.getElementById("editServiceData").innerHTML = data);
 }
+
+// Manage car types function
+function manageCarTypes(serviceID) {
+    document.getElementById("serviceIdInput").value = serviceID;
+    fetch('get_car_types.php?service_id=' + serviceID)
+        .then(response => response.text())
+        .then(data => document.getElementById("carTypesData").innerHTML = data);
+}
 </script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 14, 2025 at 01:10 PM
+-- Generation Time: May 20, 2025 at 08:11 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -184,7 +184,7 @@ CREATE TABLE `service` (
 --
 
 INSERT INTO `service` (`ServiceID`, `ServiceName`, `Description`, `ImagePath`, `BasePrice`) VALUES
-(1, 'Carwash ', 'Here’s what you can expect from our complete car wash package:\r\n\r\n🌊 Pre-Wash\r\nA thorough rinse to remove loose dirt, debris, and surface contaminants, setting the stage for a spotless clean.\r\n\r\n🧼 Soap & Detailing\r\nWe use special car wash soap to break down grime and dirt without harming your paint. Our experts gently scrub your car’s body, windows, and wheels using soft brushes or microfiber cloths for a deep clean.\r\n\r\n🚗 Wheel & Tire Cleaning\r\nWe give special attention to your wheels and tires, removing brake dust and road grime, leaving them looking sleek and shiny.\r\n\r\n💦 Rinse & Dry\r\nA final rinse to wash away soap followed by a drying process using microfiber towels or air dryers, ensuring a streak-free and water spot-free finish.', '1744101442_carwash+service-396w.webp', 25.00),
+(1, 'Carwash ', 'Here’s what you can expect from our complete car wash package:\r\n\r\n🌊 Pre-Wash\r\nA thorough rinse to remove loose dirt, debris, and surface contaminants, setting the stage for a spotless clean.\r\n\r\n🧼 Soap & Detailing\r\nWe use special car wash soap to break down grime and dirt without harming your paint. Our experts gently scrub your car’s body, windows, and wheels using soft brushes or microfiber cloths for a deep clean.\r\n\r\n🚗 Wheel & Tire Cleaning\r\nWe give special attention to your wheels and tires, removing brake dust and road grime, leaving them looking sleek and shiny.\r\n\r\n💦 Rinse & Dry\r\nA final rinse to wash away soap followed by a drying process using microfiber towels or air dryers, ensuring a streak-free and water spot-free finish.', '1744101442_carwash+service-396w.webp', 0.00),
 (8, 'Car Detailing', 'Hand wash to remove dirt, grime, and other contaminants from the surface.\r\nClay bar treatment to remove embedded contaminants that washing cannot.\r\nPolishing to restore shine, remove swirl marks, and correct imperfections in the paint.\r\nWaxing to protect the paint and provide a long-lasting glossy finish.\r\nWheel cleaning and tire dressing to ensure rims are spotless and tires have a fresh, dark appearance.\r\nWindow cleaning to remove streaks and enhance visibility.', '1744273334_cardetailing3-7b88-8696.webp', 100.00),
 (9, 'Quick Exterior', 'Try Our Quick Exterior\r\nInvolves cleaning and restoring or exceeding the original condition of the surface of the car\'s finish (usually a paint with a glossy finish), chrome trim and windows as well as other visible components on the exterior of the vehicle. A wide array of products and techiniques are used to do this based on the surface type and surface condition.\r\n\r\nDuration:4-8 hours depending on the condition of the car\'s paint.', '1745377305_08a06805f296462a8e0942ae484a5fa8.jpg', 40.00),
 (10, 'Quick Interior Detailing', 'Try Our Quick Interior\r\nInvolves deep cleaning of the whole interior cabin. Autmobile interiors of the last 50 years have variety of materials used inside the cabin such as synthetic carpet upholstery, vinyl, leather, various natural fibers, carbon fiber composites, platics and others. Different techniques and products are used to address cleaning these. Vacuuming is the standard, liquid and foam chemicals, as well us brushes may be used to removes stains on upholstery. Some nonporous surfaces may also be polished.\r\n\r\nDuration: 4-8 hours depending on the gravity of the dirt', '1745377358_Spritz-Interior-Detailer-UV-Protection-Rectangle.webp', 50.00),
@@ -201,6 +201,22 @@ CREATE TABLE `service_car_types` (
   `CarTypeID` int(11) NOT NULL,
   `AdditionalPrice` decimal(10,2) NOT NULL DEFAULT 0.00
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `service_car_types`
+--
+
+INSERT INTO `service_car_types` (`ServiceID`, `CarTypeID`, `AdditionalPrice`) VALUES
+(8, 1, 1.00),
+(8, 2, 1.00),
+(8, 3, 1.00),
+(8, 4, 1.00),
+(8, 5, 1.00),
+(8, 6, 1.00),
+(8, 7, 1.00),
+(8, 8, 1.00),
+(8, 9, 1.00),
+(8, 10, 1.00);
 
 -- --------------------------------------------------------
 
@@ -381,7 +397,7 @@ ALTER TABLE `report`
 -- AUTO_INCREMENT for table `service`
 --
 ALTER TABLE `service`
-  MODIFY `ServiceID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `ServiceID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `status`

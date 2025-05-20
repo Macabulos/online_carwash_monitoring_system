@@ -1,27 +1,31 @@
 <?php
-include '../connection/conn.php';
+require_once '../connection/conn.php';
 
-if (isset($_GET['id'])) {
-    $service_id = $_GET['id'];
-    $sql = "SELECT * FROM service WHERE ServiceID = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $service_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $service = $result->fetch_assoc();
+$service_id = $_GET['id'];
+$service = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM service WHERE ServiceID = $service_id"));
 ?>
-    <form action="update_service.php" method="POST" enctype="multipart/form-data">
-        <input type="hidden" name="service_id" value="<?php echo $service['ServiceID']; ?>">
-        <img src="../uploads/services/<?php echo $service['ImagePath']; ?>" width="150" class="mb-2">
-<input type="file" name="service_image" class="form-control" accept="image/*">
-        <div class="form-group">
-            <label>Service Name</label>
-            <input type="text" name="service_name" class="form-control" value="<?php echo $service['ServiceName']; ?>" required>
-        </div>
-        <div class="form-group">
-            <label>Description</label>
-            <textarea name="description" class="form-control" rows="3" required><?php echo $service['Description']; ?></textarea>
-        </div>
-        <button type="submit" class="btn btn-warning">Update Service</button>
-    </form>
-<?php } ?>
+
+<form action="update_service.php" method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="service_id" value="<?php echo $service['ServiceID']; ?>">
+    <div class="mb-3">
+        <label class="form-label">Current Image</label><br>
+        <img src="../uploads/services/<?php echo $service['ImagePath']; ?>" width="100" class="mb-2">
+        <input type="file" class="form-control" name="service_image" accept="image/*">
+        <small class="text-muted">Leave blank to keep current image</small>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Service Name</label>
+        <input type="text" class="form-control" name="service_name" value="<?php echo htmlspecialchars($service['ServiceName']); ?>" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Base Price</label>
+        <input type="number" class="form-control" name="base_price" step="0.01" min="0" value="<?php echo $service['BasePrice']; ?>" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Description</label>
+        <textarea class="form-control" name="description" rows="3" required><?php echo htmlspecialchars($service['Description']); ?></textarea>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">Update Service</button>
+    </div>
+</form>

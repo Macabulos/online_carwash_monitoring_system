@@ -10,7 +10,7 @@ if (!isset($_SESSION['CustomerID'])) {
 
 $CustomerID = $_SESSION['CustomerID'];
 
-// Fetch all available services with their base prices
+// Fetch all available services
 $services = $conn->query("SELECT ServiceID, ServiceName, BasePrice FROM service");
 
 // Get all booked dates from ALL users to show availability
@@ -98,12 +98,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $car_quantity = $_POST['car_quantity'] ?? 1;
     $car_type = $_POST['car_type'] ?? null;
 
+    // Get service name to check if it's Carwash
+    $service_check = $conn->query("SELECT ServiceName FROM service WHERE ServiceID = $service_id");
+    $service_row = $service_check->fetch_assoc();
+    $is_carwash = (strpos($service_row['ServiceName'], 'Carwash') !== false);
+
     // Validate all required fields
-    if (!$service_id || !$booking_date || !$booking_time || !$car_type) {
-        $_SESSION['message'] = 'All fields are required.';
-        $_SESSION['message_type'] = 'warning';
-        header("Location: ".$_SERVER['PHP_SELF']);
-        exit();
+    $required_fields = [
+        'service' => $service_id,
+        'booking_date' => $booking_date,
+        'booking_time' => $booking_time,
+        'car_quantity' => $car_quantity
+    ];
+
+    // Only require car_type if it's Carwash service
+    if ($is_carwash) {
+        $required_fields['car_type'] = $car_type;
+    }
+
+    foreach ($required_fields as $field => $value) {
+        if (empty($value)) {
+            $_SESSION['message'] = 'All required fields must be filled.';
+            $_SESSION['message_type'] = 'warning';
+            header("Location: ".$_SERVER['PHP_SELF']);
+            exit();
+        }
     }
 
     // Validate car quantity
@@ -175,7 +194,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Insert the new booking
     $stmt = $conn->prepare("INSERT INTO bookings (CustomerID, ServiceID, BookingDate, StatusID, CarQuantity, CarTypeID) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("iisiii", $CustomerID, $service_id, $booking_datetime, $status_id, $car_quantity, $car_type);
+    $car_type_value = $is_carwash ? $car_type : NULL; // Only insert car type if it's Carwash service
+    $stmt->bind_param("iisiii", $CustomerID, $service_id, $booking_datetime, $status_id, $car_quantity, $car_type_value);
 
     if ($stmt->execute()) {
         $_SESSION['message'] = 'Booking successfully created!';
@@ -198,7 +218,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php include './semantic/navbar.php'; ?>
 
 <div class="container mt-5">
-    <h3 class="mb-4">Book a Car Wash Service</h3>
+    <h3 class="mb-4">Book a Service</h3>
 
     <!-- Flash message -->
     <?php if (isset($_SESSION['message'])): ?>
@@ -218,8 +238,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <option value="">-- Choose a Service --</option>
                         <?php if ($services->num_rows > 0): ?>
                             <?php while ($row = $services->fetch_assoc()): ?>
-                                <option value="<?= $row['ServiceID'] ?>" data-baseprice="<?= $row['BasePrice'] ?>" <?= $row['ServiceName'] == 'Carwash' ? 'data-allow-car-type="true"' : '' ?>>
-                                    <?= htmlspecialchars($row['ServiceName']) ?> (₱<?= number_format($row['BasePrice'], 2) ?>)
+                                <option value="<?= $row['ServiceID'] ?>" 
+                                    data-is-carwash="<?= strpos($row['ServiceName'], 'Carwash') !== false ? 'true' : 'false' ?>">
+                                    <?= htmlspecialchars($row['ServiceName']) ?>
+                                    <?php if (strpos($row['ServiceName'], 'Carwash') === false): ?>
+                                        (₱<?= number_format($row['BasePrice'], 2) ?>)
+                                    <?php endif; ?>
                                 </option>
                             <?php endwhile; ?>
                         <?php endif; ?>
@@ -231,7 +255,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <input type="number" name="car_quantity" id="car_quantity" class="form-control" min="1" value="1" required>
                 </div>
                 
-                <div class="mb-3">
+                <div class="mb-3" id="carTypeContainer" style="display: none;">
                     <label for="car_type" class="form-label">Select Car Type:</label>
                     <select name="car_type" id="car_type" class="form-control" required>
                         <option value="">-- Choose a Car Type --</option>
@@ -242,7 +266,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         if ($car_types_result->num_rows > 0) {
                             while ($row = $car_types_result->fetch_assoc()) {
-                                echo "<option value='" . $row['CarTypeID'] . "' data-price='" . $row['BasePrice'] . "' data-duration='" . $row['EstimatedDuration'] . "'>" . 
+                                echo "<option value='" . $row['CarTypeID'] . "' 
+                                    data-price='" . $row['BasePrice'] . "' 
+                                    data-duration='" . $row['EstimatedDuration'] . "'>" . 
                                     htmlspecialchars($row['TypeName']) . " (₱" . number_format($row['BasePrice'], 2) . ")</option>";
                             }
                         }
@@ -268,66 +294,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <div class="col-md-6">
-    <div class="card">
-        <div class="card-header bg-primary text-white">
-            <h5>Booking Availability & Pricing</h5>
-        </div>
-        <div class="card-body">
-            <div id="availabilityInfo">
-                <p class="text-muted">Select a service and date to see available time slots</p>
-            </div>
-            
-            <!-- Price Summary Card -->
-<div id="priceSummary" class="card mt-3" style="display: none;">
-    <div class="card-header">
-        <h6>Price Summary</h6>
-    </div>
-    <div class="card-body">
-        <div class="row">
-            <div class="col-6">
-                <p class="mb-1"><strong>Service:</strong></p>
-                <p class="mb-1"><strong>Car Type:</strong></p>
-                <p class="mb-1"><strong>Quantity:</strong></p>
-                <p class="mb-1"><strong>Duration:</strong></p> <!-- New Duration Row -->
-            </div>
-            <div class="col-6 text-end">
-                <p class="mb-1" id="summaryService">-</p>
-                <p class="mb-1" id="summaryCarType">-</p>
-                <p class="mb-1" id="summaryQuantity">-</p>
-                <p class="mb-1" id="summaryDuration">-</p> <!-- New Duration Row -->
-            </div>
-        </div>
-        <hr>
-        <div class="row">
-            <div class="col-6">
-                <p class="mb-1"><strong>Service Price:</strong></p>
-                <p class="mb-1"><strong>Car Type Price:</strong></p>
-            </div>
-            <div class="col-6 text-end">
-                <p class="mb-1" id="summaryServicePrice">₱0.00</p>
-                <p class="mb-1" id="summaryCarTypePrice">₱0.00</p>
-            </div>
-        </div>
-        <hr>
-        <div class="row">
-            <div class="col-6">
-                <h5 class="mb-0"><strong>Total Price:</strong></h5>
-            </div>
-            <div class="col-6 text-end">
-                <h5 class
-                            <h5 class="mb-0" id="summaryTotalPrice">₱0.00</h5>
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5>Booking Availability & Pricing</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="availabilityInfo">
+                            <p class="text-muted">Select a service and date to see available time slots</p>
+                        </div>
+                        
+                        <div id="priceSummary" class="card mt-3" style="display: none;">
+                            <div class="card-header">
+                                <h6>Price Summary</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <p class="mb-1"><strong>Service:</strong></p>
+                                        <p class="mb-1"><strong>Car Type:</strong></p>
+                                        <p class="mb-1"><strong>Quantity:</strong></p>
+                                        <p class="mb-1"><strong>Duration:</strong></p>
+                                    </div>
+                                    <div class="col-6 text-end">
+                                        <p class="mb-1" id="summaryService">-</p>
+                                        <p class="mb-1" id="summaryCarType">-</p>
+                                        <p class="mb-1" id="summaryQuantity">-</p>
+                                        <p class="mb-1" id="summaryDuration">-</p>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <p class="mb-1"><strong>Service Price:</strong></p>
+                                        <p class="mb-1"><strong>Car Type Price:</strong></p>
+                                    </div>
+                                    <div class="col-6 text-end">
+                                        <p class="mb-1" id="summaryServicePrice">₱0.00</p>
+                                        <p class="mb-1" id="summaryCarTypePrice">₱0.00</p>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <h5 class="mb-0"><strong>Total Price:</strong></h5>
+                                    </div>
+                                    <div class="col-6 text-end">
+                                        <h5 class="mb-0" id="summaryTotalPrice">₱0.00</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="bookedSlots" class="mt-3" style="display:none;">
+                            <h6>Booked Time Slots:</h6>
+                            <ul id="bookedSlotsList" class="list-group"></ul>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <div id="bookedSlots" class="mt-3" style="display:none;">
-                <h6>Booked Time Slots:</h6>
-                <ul id="bookedSlotsList" class="list-group"></ul>
-            </div>
-        </div>
-    </div>
-</div>
         </div>
     </form>
 </div>
@@ -335,6 +359,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const serviceSelect = document.getElementById('service');
+    const carTypeContainer = document.getElementById('carTypeContainer');
     const carTypeSelect = document.getElementById('car_type');
     const carQuantityInput = document.getElementById('car_quantity');
     const dateInput = document.getElementById('booking_date');
@@ -342,166 +367,209 @@ document.addEventListener('DOMContentLoaded', function() {
     const availabilityInfo = document.getElementById('availabilityInfo');
     const bookedSlots = document.getElementById('bookedSlots');
     const bookedSlotsList = document.getElementById('bookedSlotsList');
+    const priceSummary = document.getElementById('priceSummary');
     
+    // Initialize with car type hidden
+    carTypeContainer.style.display = 'none';
+
     // Calculate and display prices when selections change
     function calculatePrice() {
-    const serviceOption = serviceSelect.options[serviceSelect.selectedIndex];
-    const carTypeOption = carTypeSelect.options[carTypeSelect.selectedIndex];
-    const carQuantity = parseInt(carQuantityInput.value) || 1;
-    
-    if (serviceOption.value && carTypeOption.value) {
-        const serviceBasePrice = parseFloat(serviceOption.getAttribute('data-baseprice'));
-        const carTypeBasePrice = parseFloat(carTypeOption.getAttribute('data-price'));
-        const duration = parseInt(carTypeOption.getAttribute('data-duration')); // Get duration
-        const totalPrice = (serviceBasePrice + carTypeBasePrice) * carQuantity;
+        const serviceOption = serviceSelect.options[serviceSelect.selectedIndex];
+        const carTypeOption = carTypeSelect.options[carTypeSelect.selectedIndex];
+        const carQuantity = parseInt(carQuantityInput.value) || 1;
+        const isCarwash = serviceOption.getAttribute('data-is-carwash') === 'true';
         
-        // Update the price summary
-        document.getElementById('summaryService').textContent = serviceOption.text.split('(')[0].trim();
-        document.getElementById('summaryCarType').textContent = carTypeOption.text.split('(')[0].trim();
-        document.getElementById('summaryQuantity').textContent = carQuantity;
-        document.getElementById('summaryServicePrice').textContent = `₱${serviceBasePrice.toFixed(2)}`;
-        document.getElementById('summaryCarTypePrice').textContent = `₱${carTypeBasePrice.toFixed(2)}`;
-        document.getElementById('summaryTotalPrice').textContent = `₱${totalPrice.toFixed(2)}`;
-        document.getElementById('summaryDuration').textContent = `${duration} minutes`; // Display duration
-        
-        document.getElementById('priceSummary').style.display = 'block';
-    } else {
-        document.getElementById('priceSummary').style.display = 'none';
-    }
-}
-
-
-    // Add event listeners for price calculation
-    serviceSelect.addEventListener('change', calculatePrice);
-    carTypeSelect.addEventListener('change', calculatePrice);
-    carQuantityInput.addEventListener('input', calculatePrice);
-    
-    // When date changes, fetch available time slots
-    dateInput.addEventListener('change', function() {
-        const serviceId = serviceSelect.value;
-        const date = this.value;
-        
-        if (!serviceId) {
-            alert('Please select a service first');
-            this.value = '';
+        // Hide price summary if no service selected
+        if (!serviceOption.value) {
+            priceSummary.style.display = 'none';
             return;
         }
         
-        fetchAvailableSlots(serviceId, date);
-    });
-    
-    // When service changes with a date already selected
-    serviceSelect.addEventListener('change', function() {
-        const serviceId = this.value;
-        const date = dateInput.value;
+        let totalPrice = 0;
+        let duration = 0;
         
-        if (date) {
-            fetchAvailableSlots(serviceId, date);
+        // Update the price summary
+        document.getElementById('summaryService').textContent = serviceOption.text.split('(')[0].trim();
+        document.getElementById('summaryQuantity').textContent = carQuantity;
+        
+        // For carwash, only show car type price
+        if (isCarwash) {
+            document.getElementById('summaryServicePrice').textContent = 'Included in car type';
+            
+            if (carTypeOption.value) {
+                const carTypeBasePrice = parseFloat(carTypeOption.getAttribute('data-price'));
+                duration = parseInt(carTypeOption.getAttribute('data-duration'));
+                totalPrice = carTypeBasePrice * carQuantity;
+                
+                document.getElementById('summaryCarType').textContent = carTypeOption.text.split('(')[0].trim();
+                document.getElementById('summaryCarTypePrice').textContent = `₱${carTypeBasePrice.toFixed(2)}`;
+                document.getElementById('summaryDuration').textContent = `${duration} minutes`;
+            } else {
+                document.getElementById('summaryCarType').textContent = '-';
+                document.getElementById('summaryCarTypePrice').textContent = '₱0.00';
+                document.getElementById('summaryDuration').textContent = '-';
+            }
+        } else {
+            // For non-carwash services
+            const serviceBasePrice = parseFloat(serviceOption.text.match(/₱([\d,]+\.\d{2})/)[1].replace(',', ''));
+            totalPrice = serviceBasePrice * carQuantity;
+            
+            document.getElementById('summaryServicePrice').textContent = `₱${serviceBasePrice.toFixed(2)}`;
+            document.getElementById('summaryCarType').textContent = '-';
+            document.getElementById('summaryCarTypePrice').textContent = '₱0.00';
+            document.getElementById('summaryDuration').textContent = '-';
         }
-    });
-    
+        
+        document.getElementById('summaryTotalPrice').textContent = `₱${totalPrice.toFixed(2)}`;
+        priceSummary.style.display = 'block';
+    }
+
+    // Show/hide car type based on service selection
+    function handleServiceChange() {
+        const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
+        const isCarwash = selectedOption.getAttribute('data-is-carwash') === 'true';
+        
+        // Show/hide car type container and make it required if carwash
+        carTypeContainer.style.display = isCarwash ? 'block' : 'none';
+        carTypeSelect.required = isCarwash;
+        
+        // Reset car type if not carwash
+        if (!isCarwash) {
+            carTypeSelect.value = '';
+        }
+        
+        calculatePrice();
+    }
+
+    // Fetch available time slots for selected service and date
     function fetchAvailableSlots(serviceId, date) {
-    fetch(`get_available_slots.php?service_id=${serviceId}&date=${date}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Update time select
-            timeSelect.innerHTML = '';
-            timeSelect.disabled = data.available_slots.length === 0;
-            
-            if (data.available_slots.length === 0) {
-                timeSelect.innerHTML = '<option value="">No available slots</option>';
-                availabilityInfo.innerHTML = `
-                    <div class="alert alert-warning">
-                        No available time slots for this date. Please choose another date.
-                    </div>
-                `;
-            } else {
-                timeSelect.innerHTML = '<option value="">-- Select a time --</option>';
-                
-                // Get current time
-                const now = new Date();
-                const isToday = date === now.toISOString().split('T')[0];
-                
-                data.available_slots.forEach(slot => {
-                    // Skip if this is today and the time has passed
-                    if (isToday) {
-                        const slotTime = new Date(`${date}T${slot.value}`);
-                        if (slotTime < now) {
-                            return; // skip this slot
-                        }
-                    }
-                    
-                    // Convert to 12-hour format
-                    const time24 = slot.value; // Use the slot value directly
-                    const [hours, minutes] = time24.split(':');
-                    const period = hours >= 12 ? 'PM' : 'AM';
-                    const hours12 = hours % 12 || 12;
-                    const time12 = `${hours12}:${minutes} ${period}`;
-                    
-                    const option = document.createElement('option');
-                    option.value = slot.value;
-                    option.textContent = time12;
-                    timeSelect.appendChild(option);
-                });
-                
-                // Check if any slots were added
-                if (timeSelect.options.length === 1) {
-                    timeSelect.innerHTML = '<option value="">No available slots</option>';
-                    availabilityInfo.innerHTML = `
-                        <div class="alert alert-warning">
-                            All time slots for this service are already booked. Please choose another date or service.
-                        </div>
-                    `;
-                } else {
-                    availabilityInfo.innerHTML = `
-                        <div class="alert alert-success">
-                            ${data.available_slots.length} available time slot(s) for this date
-                        </div>
-                    `;
-                }
-            }
-            
-            // Update booked slots display
-            if (data.booked_slots && data.booked_slots.length > 0) {
-                bookedSlots.style.display = 'block';
-                bookedSlotsList.innerHTML = '';
-                
-                data.booked_slots.forEach(slot => {
-                    // Convert to 12-hour format
-                    const time24 = slot.time;
-                    const [hours, minutes] = time24.split(':');
-                    const period = hours >= 12 ? 'PM' : 'AM';
-                    const hours12 = hours % 12 || 12;
-                    const time12 = `${hours12}:${minutes} ${period}`;
-                    
-                    const li = document.createElement('li');
-                    li.className = 'list-group-item d-flex justify-content-between align-items-center';
-                    li.innerHTML = `
-                        ${time12}
-                        <span class="badge bg-danger rounded-pill">Booked</span>
-                    `;
-                    bookedSlotsList.appendChild(li);
-                });
-            } else {
-                bookedSlots.style.display = 'none';
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
+        if (!serviceId || !date) return;
+        
+        fetch(`get_available_slots.php?service_id=${serviceId}&date=${date}`)
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => {
+                updateTimeSlots(data, date);
+                updateBookedSlots(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAvailabilityError();
+            });
+    }
+
+    // Update time slots dropdown
+    function updateTimeSlots(data, date) {
+        timeSelect.innerHTML = '';
+        timeSelect.disabled = data.available_slots.length === 0;
+        
+        if (data.available_slots.length === 0) {
+            timeSelect.innerHTML = '<option value="">No available slots</option>';
             availabilityInfo.innerHTML = `
-                <div class="alert alert-danger">
-                    Error loading availability data. Please try again.
+                <div class="alert alert-warning">
+                    No available time slots for this date. Please choose another date.
                 </div>
             `;
-        });
-}
+            return;
+        }
 
-    
+        timeSelect.innerHTML = '<option value="">-- Select a time --</option>';
+        const now = new Date();
+        const isToday = date === now.toISOString().split('T')[0];
+        let availableCount = 0;
+
+        data.available_slots.forEach(slot => {
+            // Skip if this is today and the time has passed
+            if (isToday) {
+                const slotTime = new Date(`${date}T${slot.value}`);
+                if (slotTime < now) return;
+            }
+            
+            const time12 = convertTo12HourFormat(slot.value);
+            const option = document.createElement('option');
+            option.value = slot.value;
+            option.textContent = time12;
+            timeSelect.appendChild(option);
+            availableCount++;
+        });
+
+        if (availableCount === 0) {
+            timeSelect.innerHTML = '<option value="">No available slots</option>';
+            availabilityInfo.innerHTML = `
+                <div class="alert alert-warning">
+                    All time slots for today have passed. Please choose another date.
+                </div>
+            `;
+        } else {
+            availabilityInfo.innerHTML = `
+                <div class="alert alert-success">
+                    ${availableCount} available time slot(s) for this date
+                </div>
+            `;
+        }
+    }
+
+    // Update booked slots display
+    function updateBookedSlots(data) {
+        if (!data.booked_slots || data.booked_slots.length === 0) {
+            bookedSlots.style.display = 'none';
+            return;
+        }
+
+        bookedSlots.style.display = 'block';
+        bookedSlotsList.innerHTML = '';
+
+        data.booked_slots.forEach(slot => {
+            const time12 = convertTo12HourFormat(slot.time);
+            const li = document.createElement('li');
+            li.className = 'list-group-item d-flex justify-content-between align-items-center';
+            li.innerHTML = `
+                ${time12}
+                <span class="badge bg-danger rounded-pill">Booked</span>
+            `;
+            bookedSlotsList.appendChild(li);
+        });
+    }
+
+    // Convert 24-hour time to 12-hour format
+    function convertTo12HourFormat(time24) {
+        const [hours, minutes] = time24.split(':');
+        const period = hours >= 12 ? 'PM' : 'AM';
+        const hours12 = hours % 12 || 12;
+        return `${hours12}:${minutes} ${period}`;
+    }
+
+    // Show error message
+    function showAvailabilityError() {
+        availabilityInfo.innerHTML = `
+            <div class="alert alert-danger">
+                Error loading availability data. Please try again.
+            </div>
+        `;
+    }
+
+    // Event listeners
+    serviceSelect.addEventListener('change', function() {
+        handleServiceChange();
+        if (dateInput.value) {
+            fetchAvailableSlots(this.value, dateInput.value);
+        }
+    });
+
+    carTypeSelect.addEventListener('change', calculatePrice);
+    carQuantityInput.addEventListener('input', calculatePrice);
+
+    dateInput.addEventListener('change', function() {
+        if (serviceSelect.value) {
+            fetchAvailableSlots(serviceSelect.value, this.value);
+        } else {
+            alert('Please select a service first');
+            this.value = '';
+        }
+    });
+
     // Auto-close alerts after 5 seconds
     setTimeout(() => {
         const alert = document.querySelector('.alert');
@@ -510,6 +578,9 @@ document.addEventListener('DOMContentLoaded', function() {
             bsAlert.close();
         }
     }, 5000);
+
+    // Initialize price calculation if there are pre-selected values
+    calculatePrice();
 });
 </script>
 
