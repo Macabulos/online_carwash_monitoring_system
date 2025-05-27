@@ -125,7 +125,7 @@ if ($result) {
                     <!-- Summary Cards -->
                     <div class="row mb-4">
                         <div class="col-md-6">
-                            <div class="card bg-primary text-white">
+                            <div class="card bg-primary ">
                                 <div class="card-body">
                                     <h5 class="card-title">Total Bookings</h5>
                                     <h2 class="card-text"><?= $total_bookings ?></h2>
@@ -133,7 +133,7 @@ if ($result) {
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="card bg-success text-white">
+                            <div class="card bg-success ">
                                 <div class="card-body">
                                     <h5 class="card-title">Total Revenue</h5>
                                     <h2 class="card-text">₱<?= number_format($total_revenue, 2) ?></h2>
@@ -193,12 +193,12 @@ if ($result) {
                                             <tr><td colspan="8" class="text-center">No records found for selected month.</td></tr>
                                         <?php endif; ?>
                                     </tbody>
-                                    <tfoot>
+                                    <!-- <tfoot>
                                         <tr class="table-active">
                                             <th colspan="7" class="text-end">Total Revenue:</th>
                                             <th class="text-end">₱<?= number_format($total_revenue, 2) ?></th>
                                         </tr>
-                                    </tfoot>
+                                    </tfoot> -->
                                 </table>
                             </div>
                         </div>
