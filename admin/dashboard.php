@@ -569,7 +569,7 @@ while ($service = mysqli_fetch_assoc($servicesResult)) {
     <?php 
         endwhile;
     endif; 
-    ?>
+    ?>s
 
     <?php include 'includes/scripts.php'; ?>
 </body>

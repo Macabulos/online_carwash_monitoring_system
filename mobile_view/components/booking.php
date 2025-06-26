@@ -20,7 +20,7 @@ $booked_slots_query = "SELECT
     ServiceID,
     COUNT(*) as booking_count
     FROM bookings 
-    WHERE StatusID != 3  -- Exclude cancelled bookings
+    WHERE StatusID != 3 -- Exclude cancelled bookings
     GROUP BY DATE(BookingDate), TIME(BookingDate), ServiceID
     ORDER BY BookingDate";
 
@@ -101,20 +101,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $booking_time = $_POST['booking_time'] ?? null;
     $car_quantity = $_POST['car_quantity'] ?? 1;
     $car_type = $_POST['car_type'] ?? null;
-    $employee_id = $_POST['employee'] ?? null;
+    $employee_id = $_POST['employee'] ?? null; // Employee is now optional
 
     // Get service name to check if it's Carwash
     $service_check = $conn->query("SELECT ServiceName FROM service WHERE ServiceID = $service_id");
     $service_row = $service_check->fetch_assoc();
     $is_carwash = (strpos($service_row['ServiceName'], 'Carwash') !== false);
 
-    // Validate all required fields
+    // Validate required fields (employee is removed from this array)
     $required_fields = [
         'service' => $service_id,
         'booking_date' => $booking_date,
         'booking_time' => $booking_time,
         'car_quantity' => $car_quantity,
-        'employee' => $employee_id // Employee is now required for all services
     ];
 
     // Only require car_type if it's Carwash service
@@ -124,8 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     foreach ($required_fields as $field => $value) {
         if (empty($value)) {
-            $_SESSION['message'] = 'All required fields must be filled.';
-            $_SESSION['message_type'] = 'warning';
+            $_SESSION['error_message'] = 'All required fields must be filled.';
             header("Location: ".$_SERVER['PHP_SELF']);
             exit();
         }
@@ -133,8 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Validate car quantity
     if (!is_numeric($car_quantity) || $car_quantity < 1 || $car_quantity > 10) {
-        $_SESSION['message'] = 'Please enter a valid number of cars (1-10).';
-        $_SESSION['message_type'] = 'warning';
+        $_SESSION['error_message'] = 'Please enter a valid number of cars (1-10).';
         header("Location: ".$_SERVER['PHP_SELF']);
         exit();
     }
@@ -144,35 +141,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Check if booking is in the past
     if (strtotime($booking_datetime) < time()) {
-        $_SESSION['message'] = 'You cannot book a time slot that has already passed.';
-        $_SESSION['message_type'] = 'warning';
+        $_SESSION['error_message'] = 'You cannot book a time slot that has already passed.';
         header("Location: ".$_SERVER['PHP_SELF']);
         exit();
     }
 
     // Check if the user already has a future pending booking for this service
     $existing_booking_query = "SELECT * FROM bookings 
-                            WHERE CustomerID = ? 
-                            AND ServiceID = ?
-                            AND BookingDate > NOW()
-                            AND StatusID = 1";
+                               WHERE CustomerID = ? 
+                               AND ServiceID = ?
+                               AND BookingDate > NOW()
+                               AND StatusID = 1";
     $stmt_existing = $conn->prepare($existing_booking_query);
     $stmt_existing->bind_param("ii", $CustomerID, $service_id);
     $stmt_existing->execute();
     $result_existing = $stmt_existing->get_result();
 
     if ($result_existing->num_rows > 0) {
-        $_SESSION['message'] = 'You already have a pending booking for this service. Please complete or cancel it before booking again.';
-        $_SESSION['message_type'] = 'warning';
+        $_SESSION['error_message'] = 'You already have a pending booking for this service. Please complete or cancel it before booking again.';
         header("Location: ".$_SERVER['PHP_SELF']);
         exit();
     }
 
     // Check time slot availability
     $check_availability_query = "SELECT COUNT(*) as booking_count FROM bookings 
-                               WHERE ServiceID = ? 
-                               AND BookingDate = ?
-                               AND StatusID != 3";
+                                 WHERE ServiceID = ? 
+                                 AND BookingDate = ?
+                                 AND StatusID != 3";
     $stmt_availability = $conn->prepare($check_availability_query);
     $stmt_availability->bind_param("is", $service_id, $booking_datetime);
     $stmt_availability->execute();
@@ -180,39 +175,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $availability_data = $result_availability->fetch_assoc();
 
     if ($availability_data['booking_count'] >= $business_hours['max_simultaneous']) {
-        $_SESSION['message'] = 'This time slot is already fully booked. Please choose another time.';
-        $_SESSION['message_type'] = 'warning';
+        $_SESSION['error_message'] = 'This time slot is already fully booked. Please choose another time.';
         header("Location: ".$_SERVER['PHP_SELF']);
         exit();
     }
-
-    // Update employee availability
-    $conn->query("UPDATE employees SET Availability = 'Assigned' WHERE EmployeeID = $employee_id");
     
+    // If employee_id is empty, set it to NULL for the database
+    $employee_id_for_db = empty($employee_id) ? NULL : $employee_id;
+
     // Insert the new booking with conditional fields
     if ($is_carwash) {
+        // For Carwash, CarTypeID is required, EmployeeID can be NULL
         $stmt = $conn->prepare("INSERT INTO bookings (CustomerID, ServiceID, BookingDate, StatusID, CarQuantity, CarTypeID, EmployeeID) VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("iisiiii", $CustomerID, $service_id, $booking_datetime, $status_id, $car_quantity, $car_type, $employee_id);
+        $stmt->bind_param("iisiiii", $CustomerID, $service_id, $booking_datetime, $status_id, $car_quantity, $car_type, $employee_id_for_db);
     } else {
+        // For other services, CarTypeID is not applicable, EmployeeID can be NULL
         $stmt = $conn->prepare("INSERT INTO bookings (CustomerID, ServiceID, BookingDate, StatusID, CarQuantity, EmployeeID) VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("iisiii", $CustomerID, $service_id, $booking_datetime, $status_id, $car_quantity, $employee_id);
+        $stmt->bind_param("iisiii", $CustomerID, $service_id, $booking_datetime, $status_id, $car_quantity, $employee_id_for_db);
     }
 
     if ($stmt->execute()) {
-        $_SESSION['message'] = 'Booking successfully created!';
-        $_SESSION['message_type'] = 'success';
-        header("Location: dashboard.php");
+        $_SESSION['success_message'] = 'Booking successfully created!';
+        header("Location: booking.php");
         exit();
     } else {
-        $_SESSION['message'] = 'Failed to book. Please try again.';
-        $_SESSION['message_type'] = 'danger';
+        $_SESSION['error_message'] = 'Failed to book. Please try again. Error: ' . $conn->error;
         header("Location: ".$_SERVER['PHP_SELF']);
         exit();
     }
 }
 
 // Fetch available employees for the form
-$availableEmployees = $conn->query("SELECT * FROM employees WHERE Availability = 'Available'");
+$availableEmployees = $conn->query("SELECT * FROM employees");
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -220,16 +214,62 @@ $availableEmployees = $conn->query("SELECT * FROM employees WHERE Availability =
 <body>
 <?php include './semantic/navbar.php'; ?>
 
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="successModalLabel">Success!</h5>
+            </div>
+            <div class="modal-body text-center">
+                <div class="mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-check-circle-fill text-success" viewBox="0 0 16 16">
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                    </svg>
+                </div>
+                <h4 class="mb-3">Booking Successful!</h4>
+                <p id="successMessage">Your booking has been successfully created.</p>
+            </div>
+            <div class="modal-footer">
+                <small class="text-muted">This message will close automatically...</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Error Modal -->
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="errorModalLabel">Error!</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-x-circle-fill text-danger" viewBox="0 0 16 16">
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
+                    </svg>
+                </div>
+                <h4 class="mb-3">Booking Failed</h4>
+                <p id="errorMessage">There was an error processing your booking.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Try Again</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="container mt-5">
     <h3 class="mb-4">Book a Service</h3>
 
-    <!-- Flash message -->
-    <?php if (isset($_SESSION['message'])): ?>
-        <div class="alert alert-<?= $_SESSION['message_type'] ?> alert-dismissible fade show">
-            <?= $_SESSION['message'] ?>
+    <?php if (isset($_SESSION['error_message'])): ?>
+        <div class="alert alert-danger alert-dismissible fade show">
+            <?= $_SESSION['error_message'] ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-        <?php unset($_SESSION['message'], $_SESSION['message_type']); ?>
+        <?php unset($_SESSION['error_message']); ?>
     <?php endif; ?>
 
     <form method="POST" action="" id="bookingForm" enctype="multipart/form-data">
@@ -270,9 +310,9 @@ $availableEmployees = $conn->query("SELECT * FROM employees WHERE Availability =
                         if ($car_types_result->num_rows > 0) {
                             while ($row = $car_types_result->fetch_assoc()) {
                                 echo "<option value='" . $row['CarTypeID'] . "' 
-                                    data-price='" . $row['BasePrice'] . "' 
-                                    data-duration='" . $row['EstimatedDuration'] . "'>" . 
-                                    htmlspecialchars($row['TypeName']) . " (₱" . number_format($row['BasePrice'], 2) . ")</option>";
+                                        data-price='" . $row['BasePrice'] . "' 
+                                        data-duration='" . $row['EstimatedDuration'] . "'>" . 
+                                        htmlspecialchars($row['TypeName']) . " (₱" . number_format($row['BasePrice'], 2) . ")</option>";
                             }
                         }
                         ?>
@@ -280,10 +320,8 @@ $availableEmployees = $conn->query("SELECT * FROM employees WHERE Availability =
                 </div>
 
                 <div class="mb-3">
-                    <label for="employee" class="form-label">Select Employee:</label>
-                    <select name="employee" id="employee" class="form-control" required>
-                        <option value="">-- Choose an Employee --</option>
-                        <?php if ($availableEmployees->num_rows > 0): ?>
+                    <label for="employee" class="form-label">Who you want to handle your car (optional):</label>
+                    <select name="employee" id="employee" class="form-control"> <option value="">-- No preferred employee --</option> <?php if ($availableEmployees->num_rows > 0): ?>
                             <?php while ($employee = $availableEmployees->fetch_assoc()): ?>
                                 <option value="<?= $employee['EmployeeID'] ?>">
                                     <?= htmlspecialchars($employee['FirstName'] . ' ' . $employee['LastName']) ?> 
@@ -291,7 +329,7 @@ $availableEmployees = $conn->query("SELECT * FROM employees WHERE Availability =
                                 </option>
                             <?php endwhile; ?>
                         <?php else: ?>
-                            <option value="" disabled>No available employees</option>
+                            <option value="" disabled>No employees available</option>
                         <?php endif; ?>
                     </select>
                 </div>
@@ -393,15 +431,34 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Elements to show/hide based on service type
     const carTypeLabel = document.getElementById('carTypeLabel');
-    const employeeLabel = document.getElementById('employeeLabel');
     const durationLabel = document.getElementById('durationLabel');
     const servicePriceLabel = document.getElementById('servicePriceLabel');
     const carTypePriceLabel = document.getElementById('carTypePriceLabel');
     const summaryCarType = document.getElementById('summaryCarType');
-    const summaryEmployee = document.getElementById('summaryEmployee');
     const summaryDuration = document.getElementById('summaryDuration');
     const summaryServicePrice = document.getElementById('summaryServicePrice');
     const summaryCarTypePrice = document.getElementById('summaryCarTypePrice');
+    const summaryEmployee = document.getElementById('summaryEmployee');
+
+    // Initialize modals
+    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+    const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+
+    // Check if we should show success or error modal from session
+    <?php if (isset($_SESSION['success_message'])): ?>
+        document.getElementById('successMessage').textContent = "<?= $_SESSION['success_message'] ?>";
+        successModal.show();
+        
+        // Auto-hide success modal after 3 seconds
+        setTimeout(() => {
+            successModal.hide();
+        }, 3000);
+        <?php unset($_SESSION['success_message']); ?>
+    <?php elseif (isset($_SESSION['error_message'])): ?>
+        document.getElementById('errorMessage').textContent = "<?= $_SESSION['error_message'] ?>";
+        errorModal.show();
+        <?php unset($_SESSION['error_message']); ?>
+    <?php endif; ?>
 
     // Initialize with car type container hidden
     carTypeContainer.style.display = 'none';
@@ -426,7 +483,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update the price summary
         document.getElementById('summaryService').textContent = serviceOption.text.split('(')[0].trim();
         document.getElementById('summaryQuantity').textContent = carQuantity;
-        document.getElementById('summaryEmployee').textContent = employeeOption.value ? employeeOption.text : 'Not assigned';
+        document.getElementById('summaryEmployee').textContent = employeeOption.value ? employeeOption.text.split('(')[0].trim() : 'No preferred employee';
         
         // For carwash services
         if (isCarwash) {
@@ -645,7 +702,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (serviceSelect.value) {
             fetchAvailableSlots(serviceSelect.value, this.value);
         } else {
-            alert('Please select a service first');
+            document.getElementById('errorMessage').textContent = 'Please select a service first';
+            errorModal.show();
             this.value = '';
         }
     });
